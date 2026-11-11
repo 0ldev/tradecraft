@@ -1,0 +1,19 @@
+tool_id: whatweb
+required_binary: whatweb
+scope_param: target
+
+description: >
+  Fingerprint a web target's technology stack (CMS, frameworks, JS
+  libraries, server software) with a single lightweight request. Cheaper
+  than running a full scanner against every host -- use it to decide
+  which hosts are worth deeper, tool-specific follow-up.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host, 'host:port', or full URL to fingerprint, e.g.
+        '10.0.0.5', 'target.local:8443', or 'https://target.local'.
+  required: ["target"]

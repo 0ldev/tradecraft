@@ -1,0 +1,19 @@
+tool_id: wafw00f
+required_binary: wafw00f
+scope_param: target
+
+description: >
+  Detect whether a web target is sitting behind a WAF/CDN edge, and
+  which one. Run this before content-discovery or exploitation tools
+  against a target so the model knows whether failures/blocks are the
+  app itself or an edge device in front of it.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host, 'host:port', or full URL to probe, e.g. '10.0.0.5',
+        'target.local', or 'https://target.local'.
+  required: ["target"]

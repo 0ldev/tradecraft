@@ -1,0 +1,21 @@
+tool_id: retract_finding
+required_binary: null
+scope_param: null
+
+description: >
+  Retract a previously-logged finding that turned out to be wrong (e.g.
+  contradicted by a later check). The finding is removed from the final
+  report but stays visible, marked [RETRACTED], in the full engagement
+  log -- nothing is silently deleted. Use the finding_id returned by the
+  original log_finding call.
+
+parameters:
+  type: object
+  properties:
+    finding_id:
+      type: integer
+      description: "The finding_id returned by the log_finding call being retracted."
+    reason:
+      type: string
+      description: "Why this finding is being retracted."
+  required: ["finding_id", "reason"]

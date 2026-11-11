@@ -1,0 +1,25 @@
+tool_id: commix
+required_binary: commix
+scope_param: target
+description: "Tests a web application endpoint and its query or body parameters for command injection vulnerabilities using batch automation."
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Target URL to test, e.g. 'http://example.com/search?q=test' or 'http://example.com/page.php'."
+    parameter:
+      type: string
+      description: "Optional specific parameter name to test (e.g. 'q', 'id', 'cmd'). If omitted, commix tests all discovered parameters."
+    data:
+      type: string
+      description: "Optional POST data string to be sent with the request (e.g. 'action=view&id=1')."
+    method:
+      type: string
+      description: "HTTP method to use ('GET' or 'POST', default: 'GET')."
+    level:
+      type: integer
+      description: "Testing level from 1 to 3 (default: 1 for standard detection, 2 for extended tests, 3 for aggressive payloads)."
+  required:
+    - target
+

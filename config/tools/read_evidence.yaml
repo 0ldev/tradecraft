@@ -1,0 +1,20 @@
+tool_id: read_evidence
+scope_param: target
+
+description: >
+  Retrieve full, detailed evidence previously recorded for a specific target and tool.
+  Use this when you need in-depth data (such as full TLS ciphers, raw headers, or full scan
+  records) that was summarized in the initial tool result or noted in Known Facts.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host or domain whose evidence to inspect, e.g. 'examplepaint.com.br'.
+    tool_id:
+      type: string
+      description: >
+        The tool that collected the evidence, e.g. 'testssl'.
+  required: ["target", "tool_id"]

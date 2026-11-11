@@ -1,0 +1,22 @@
+tool_id: dns_axfr
+required_binary: dig
+scope_param: target
+
+description: >
+  Attempt a DNS zone transfer (AXFR) against a domain's own authoritative
+  nameservers, resolved automatically from the domain's own NS records.
+  Flags a misconfigured nameserver that leaks its entire zone file to an
+  unauthenticated request. No prerequisite tool call needed -- it
+  resolves the domain's nameservers itself.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Domain apex to test, e.g. 'examplepaint.com.br'. Do not pass a
+        subdomain -- nameservers are almost always delegated at the
+        apex, and a subdomain's own NS records (if any) are usually
+        just the apex's.
+  required: ["target"]

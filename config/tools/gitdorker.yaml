@@ -1,0 +1,30 @@
+tool_id: gitdorker
+required_binary: python3
+scope_param: target
+
+description: >
+  Search GitHub's own code-search API for public repositories or files
+  mentioning the target organization/domain, combined with a wordlist
+  of dork patterns that commonly surface leaked credentials and config
+  (filename:.env, extension:pem, content:api_key, etc.). Never contacts
+  the target's own infrastructure -- this only queries GitHub. A result
+  classified as "secret" means the MATCHED DORK PATTERN looks
+  credential-shaped (e.g. filename:.env), not that actual secret content
+  was retrieved -- GitDorker's own output is a URL + matched dork only,
+  never file contents, so verify any hit by fetching the URL yourself
+  (http_request) before treating it as a confirmed leak. Slow: GitHub
+  rate-limits authenticated code search to 10 requests/minute, so a full
+  run can take several minutes.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Organization or domain name to search for across GitHub, e.g.
+        'exampleauto' or 'exampleauto.com.br'. A bare org name (no TLD)
+        often surfaces more relevant results than the full domain --
+        GitDorker treats this as a free-text search term, not a DNS
+        name.
+  required: ["target"]

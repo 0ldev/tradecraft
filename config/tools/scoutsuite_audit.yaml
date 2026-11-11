@@ -1,0 +1,51 @@
+tool_id: scoutsuite_audit
+required_binary: scout
+scope_param: target
+destructive: false
+
+description: >
+  Read-only AWS, Azure, or GCP misconfiguration audit via ScoutSuite
+  (`scout`), using a cloud credential already obtained some other way
+  (e.g. trufflehog, a cloud metadata-endpoint probe). Covers public
+  buckets, open security groups, IAM/RBAC over-permissioning, logging
+  gaps, and similar configuration issues -- it only describes and lists
+  provider configuration, it never changes anything. Runs inside a
+  disposable HOME and report directory per call, with a 600s process cap.
+  Returns only rules that flagged at least one resource, sorted by
+  severity (danger before warning), capped at 100 findings with a
+  truncation flag. The full report is kept as evidence.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Identifying label for the cloud account, subscription, or project
+        being audited (e.g. the host or service where this credential was
+        found, or an account/project alias). Used only to key evidence and
+        facts -- ScoutSuite is told nothing about it; which account is
+        actually audited is determined entirely by the credential.
+    provider:
+      type: string
+      description: >
+        Cloud provider to audit: 'aws', 'azure', or 'gcp'.
+    credential:
+      type: string
+      description: >
+        Credential for the chosen provider. For 'aws':
+        'AccessKeyId:SecretAccessKey' or
+        'AccessKeyId:SecretAccessKey:SessionToken' (include the session token
+        for temporary/STS credentials). For 'azure':
+        'TenantId:ClientId:ClientSecret' or
+        'TenantId:ClientId:ClientSecret:SubscriptionId' (service-principal
+        login). For 'gcp': the service-account JSON itself, either raw or
+        base64-encoded -- not a file path.
+    services:
+      type: string
+      description: >
+        Optional comma-separated list of ScoutSuite service names to limit
+        the audit to (e.g. 's3,ec2,iam' for AWS), to bound scan time on
+        large accounts. Omit to audit all services ScoutSuite supports for
+        the provider.
+  required: ["target", "provider", "credential"]

@@ -1,0 +1,50 @@
+tool_id: csrf_probe
+scope_param: target
+destructive: true
+destructive_categories:
+  - state_mutation
+
+description: >
+  Tests whether a state-changing endpoint actually validates its CSRF
+  token server-side, by sending exactly 2 extra write attempts beyond
+  whatever the operator already knows succeeds with a valid token --
+  (a) the same body with the token field removed, (b) the same body
+  with the token replaced by a random same-shaped value -- both without
+  the usual same-origin Referer/Origin headers. Flags vulnerable only if
+  either attempt still returns a 2xx success-shaped response rather than
+  a 4xx rejection or a redirect to an error page. These are REAL writes
+  against live state, not a dry run -- confirm you already have one
+  request known to succeed with a valid token (via http_request or
+  prior recon) before calling this, so a "vulnerable" result can't be
+  confused with the endpoint simply rejecting malformed requests in
+  general.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "State-changing endpoint URL, e.g. 'https://example.com/account/email'."
+    body:
+      type: string
+      description: >
+        The real request body as a string, including the CSRF token
+        field as currently used, e.g.
+        '{"email":"new@example.com","csrf_token":"abc123"}'.
+    token_param:
+      type: string
+      description: "Name of the CSRF token field in 'body' to strip/replace, e.g. 'csrf_token'."
+    method:
+      type: string
+      description: "HTTP method to use. Defaults to POST."
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP headers separated by newlines (e.g.
+        'Cookie: session=xyz'). Any Referer/Origin header supplied here
+        is stripped before sending, since the probe is specifically
+        testing a cross-origin-shaped request.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target", "body", "token_param"]

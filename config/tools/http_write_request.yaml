@@ -1,0 +1,65 @@
+tool_id: http_write_request
+required_binary: curl
+scope_param: url
+destructive: true
+destructive_categories:
+  - state_mutation
+
+description: >
+  Sends a single state-mutating HTTP request (PUT, DELETE, or PATCH only) to
+  one URL, for confirming a real unauthenticated write/delete capability
+  discovered on a live target (e.g. an API, upload endpoint, or storage
+  service that accepts writes without authentication). This is a real
+  write/delete against the live target, not a dry run, and the resulting
+  object or change does not undo itself -- there is no automatic cleanup.
+  Classified as destructive: true; available only when --allow-destructive
+  is specified. Rejects any method other than PUT, DELETE, or PATCH (use
+  http_request instead for GET, HEAD, OPTIONS, or POST, including
+  non-destructive POST probing such as a login or search form). Always
+  targets exactly one URL per call -- unlike http_request's comma-batch
+  mode, a write against several resources in one call is a larger, less
+  deliberate blast radius than batching idempotent reads, so each write is
+  its own call. For testing write access on an AWS S3 / GCP Cloud Storage /
+  Azure Blob Storage bucket specifically, prefer bucket_permission_exploit
+  instead: it already writes, reads back, and deletes its own canary
+  object automatically, which this general-purpose tool does not.
+
+parameters:
+  type: object
+  properties:
+    url:
+      type: string
+      description: >
+        The single target URL to send the write/delete request to, e.g.
+        'https://example.com/api/v1/objects/test-probe.txt'. Exactly one
+        URL -- a comma-separated value is treated as one literal (likely
+        invalid) URL, not a batch of several.
+    method:
+      type: string
+      description: >
+        HTTP method -- must be 'PUT', 'DELETE', or 'PATCH'. Any other
+        value (including 'GET' or 'POST') is rejected; use http_request
+        for those. Required: there is no default method for a destructive
+        call.
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP request headers, separated by newlines (e.g.
+        'Authorization: Bearer token\nContent-Type: application/json').
+    data:
+      type: string
+      description: >
+        Optional request body for a PUT or PATCH request (typically
+        unused for DELETE).
+    follow_redirects:
+      type: boolean
+      description: "Whether to follow HTTP 3xx redirects (default: false)."
+    timeout:
+      type: integer
+      description: "Request timeout in seconds (default: 10)."
+    body_chars:
+      type: integer
+      description: "Maximum number of response body characters to return (default: 2000, maximum: 8000)."
+  required:
+    - url
+    - method

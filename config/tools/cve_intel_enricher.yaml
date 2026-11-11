@@ -1,0 +1,24 @@
+tool_id: cve_intel_enricher
+required_binary: null
+scope_param: null
+destructive: false
+
+description: >
+  Enriches CVE identifiers with real-world exploitation signals: CISA KEV
+  (Known Exploited Vulnerabilities) inclusion, FIRST EPSS (Exploit Prediction
+  Scoring System) probability and percentile, and AI-stack exploitation tags.
+
+parameters:
+  type: object
+  properties:
+    cve:
+      type: string
+      description: Single CVE identifier or comma-separated list of CVEs (e.g. 'CVE-2023-48022' or 'CVE-2024-42271, CVE-2024-37032').
+    min_epss:
+      type: number
+      description: Minimum EPSS exploitation probability threshold (0.0 to 1.0) to filter results.
+    timeout:
+      type: integer
+      description: Request timeout in seconds for threat intelligence API lookups. Defaults to 5.
+  required:
+    - cve

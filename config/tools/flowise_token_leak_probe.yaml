@@ -1,0 +1,33 @@
+tool_id: flowise_token_leak_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes Flowise AI instances for unauthenticated password reset token leakage
+  and account takeover (CVE-2025-58434). Tests the /api/v1/account/forgot-password
+  endpoint to verify whether the server improperly discloses unhashed tempToken
+  credentials in its JSON response body without modifying account passwords or
+  causing service interruption.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP, hostname, or base URL of the Flowise deployment (e.g.,
+        'flowise.internal.net:3000' or 'https://ai.example.com').
+    email:
+      type: string
+      description: >
+        Email address to query against the forgot-password endpoint (default: 'admin@local').
+    host_header:
+      type: string
+      description: >
+        Optional custom HTTP Host header if required for virtual host routing.
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target

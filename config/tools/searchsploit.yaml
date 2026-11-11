@@ -1,0 +1,18 @@
+tool_id: searchsploit
+required_binary: searchsploit
+description: "Queries the local Exploit-DB archive for known public exploits, CVE records, and proof-of-concept exploit code by software name, version, CVE identifier, or EDB-ID."
+parameters:
+  type: object
+  properties:
+    query:
+      type: string
+      description: "Search terms matching software name and version (e.g. 'Apache 2.4.49', 'Exim 4.100', 'PHP 5.6')."
+    cve:
+      type: string
+      description: "Specific CVE identifier to search (e.g. 'CVE-2021-41773' or '2021-41773')."
+    edb_id:
+      type: string
+      description: "Specific Exploit-DB ID to inspect and read the exploit PoC file (e.g. '50383')."
+    target:
+      type: string
+      description: "Optional target host or IP associated with the finding to link evidence and facts."

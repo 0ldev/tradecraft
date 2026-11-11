@@ -1,0 +1,58 @@
+tool_id: kerberoast
+required_binary: GetUserSPNs.py
+scope_param: target
+destructive: true
+destructive_categories:
+  - credential_or_secret_exposure
+
+description: >
+  Kerberoasting: requests a TGS for every Active Directory account with a
+  non-empty servicePrincipalName and reports the crackable Kerberos hash
+  for each one, via Impacket's GetUserSPNs.py. This is an attack
+  technique (harvesting material for offline password cracking), not
+  passive enumeration -- running it against accounts whose service
+  passwords are weak can expose cleartext credentials once cracked.
+  Returns up to 50 hashes per call, with a truncation flag and the full
+  list kept as evidence; a clean "nothing to roast" domain is reported as
+  a successful outcome (a 'reason', not an error). 60s process cap.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Domain controller IP address or hostname, e.g. '10.0.0.10' or
+        'dc01.corp.local'. CIDR ranges, IP ranges, and target lists are
+        rejected.
+    domain:
+      type: string
+      description: >
+        Active Directory domain to authenticate to and query, e.g.
+        'corp.local'. Required.
+    username:
+      type: string
+      description: >
+        Username for the single authentication attempt. A bare username
+        ('alice'), UPN ('alice@corp.local'), or 'corp.local\alice' is
+        accepted; any domain part must match the domain argument.
+    password:
+      type: string
+      description: >
+        Plaintext password for the authentication attempt. Mutually
+        exclusive with hashes. Exactly one of password or hashes is
+        required.
+    hashes:
+      type: string
+      description: >
+        NTLM hash for pass-the-hash ('LMHASH:NTHASH' or 'NTHASH'), used
+        instead of password. Mutually exclusive with password.
+    dc_ip:
+      type: string
+      description: >
+        Explicit domain controller IP address. Provide when target is a
+        hostname that cannot be resolved; omitted for an IP target.
+  required:
+    - target
+    - domain
+    - username

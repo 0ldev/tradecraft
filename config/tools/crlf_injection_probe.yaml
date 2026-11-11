@@ -1,0 +1,34 @@
+tool_id: crlf_injection_probe
+scope_param: target
+destructive: false
+
+description: >
+  Injects a CRLF ("%0d%0a") sequence followed by a fake header line into
+  one query parameter, then inspects the ACTUAL response headers (as
+  parsed by the HTTP client, which correctly splits genuinely distinct
+  header lines arriving from the wire) for either the injected header
+  name itself appearing with the marker value, or the marker leaking
+  into a different header's value. Confirms HTTP response splitting /
+  header injection, which can enable session fixation, reflected XSS
+  via a header sink, or cache poisoning. Non-destructive (destructive:
+  false): a single GET, no state mutation. Limitation: relies on the
+  HTTP client's own header parsing; a server that folds the injected
+  sequence in an unusual way may not be detected here -- a negative
+  result does not prove the sink is safe.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Target URL containing the parameter to inject, e.g. 'https://example.com/redirect?url=/home'."
+    parameter:
+      type: string
+      description: "Name of the query parameter to inject the CRLF payload into, e.g. 'url' or 'redirect'."
+    injected_header_name:
+      type: string
+      description: "Fake header name to inject, e.g. 'X-Tradecraft-CRLF-Test'. Defaults to 'X-Tradecraft-CRLF-Test'."
+    timeout:
+      type: integer
+      description: "Request timeout in seconds. Defaults to 10."
+  required: ["target", "parameter"]

@@ -1,0 +1,30 @@
+# Virtual environments & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Secrets & local environment config (pass via --env-file at runtime)
+.env
+.env.*
+!.env.example
+
+# Git & IDE metadata
+.git/
+.github/
+.vscode/
+.idea/
+
+# Local engagement artifacts & temporary outputs
+*.trace.jsonl
+report_*.md
+report_*.html
+report_*.json
+report_*.sarif.json

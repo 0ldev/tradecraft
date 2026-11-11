@@ -1,0 +1,85 @@
+tool_id: certipy_enum
+required_binary: certipy
+scope_param: target
+destructive: false
+
+description: >
+  Read-only Active Directory Certificate Services enumeration via Certipy's
+  'find' command. Collects certificate authorities, certificate templates,
+  permissions, and ESC1/ESC2/ESC3/ESC4/ESC6/ESC7/ESC8/ESC9/ESC11
+  misconfiguration findings from LDAP (and, unless dc_only is set, CA
+  configuration and the Web Enrollment endpoint), returning Certipy's own
+  JSON entries for each CA and template. Runs exactly one authentication
+  attempt with the single credential pair supplied and does not request,
+  issue, modify, or delete anything -- certificate abuse is out of scope
+  for this tool. Uses a 10s per-connection timeout and a 300s process
+  timeout. At most 25 CAs and 100 templates are returned per call (with
+  full counts and truncation flags); the complete JSON is kept as evidence.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Domain controller IP address or hostname, e.g. '10.0.0.10' or
+        'dc01.corp.local'. CIDR ranges, IP ranges, and target lists are
+        rejected.
+    domain:
+      type: string
+      description: >
+        Active Directory domain to authenticate to, e.g. 'corp.local'.
+        Required; used to build the 'username@domain' principal.
+    username:
+      type: string
+      description: >
+        Username for the single authentication attempt. A bare username
+        ('alice'), UPN ('alice@corp.local'), or 'corp.local\alice' is
+        accepted; any domain part must match the domain argument.
+    password:
+      type: string
+      description: >
+        Plaintext password for the authentication attempt. Mutually
+        exclusive with hashes. Exactly one of password or hashes is
+        required.
+    hashes:
+      type: string
+      description: >
+        NTLM hash for pass-the-hash ('LM:NTHASH' or 'NTHASH'), used
+        instead of password. Mutually exclusive with password.
+    dc_ip:
+      type: string
+      description: >
+        Explicit domain controller IP address. Provide when target is a
+        hostname that cannot be resolved; omitted for an IP target.
+    scheme:
+      type: string
+      description: >
+        LDAP scheme: 'ldaps' (default, port 636) or 'ldap' (port 389).
+        Use 'ldap' when the domain controller does not serve LDAPS.
+    enabled_only:
+      type: boolean
+      description: >
+        Only include enabled certificate templates (-enabled). Does not
+        change CA results (default: false).
+    vulnerable_only:
+      type: boolean
+      description: >
+        Only include templates vulnerable to the authenticated user based
+        on nested group memberships (-vulnerable). Does not change CA
+        results (default: false).
+    hide_admins:
+      type: boolean
+      description: >
+        Omit administrator permissions from template and CA output
+        (-hide-admins) (default: false).
+    dc_only:
+      type: boolean
+      description: >
+        Collect data only from the domain controller, skipping CA
+        security/configuration and Web Enrollment checks (-dc-only)
+        (default: false).
+  required:
+    - target
+    - domain
+    - username

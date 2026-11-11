@@ -1,0 +1,40 @@
+tool_id: magento_cosmicsting_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes Adobe Commerce and Magento 2 REST API endpoints for the critical
+  CosmicSting unauthenticated XML External Entity (XXE) and external entity
+  parser vulnerability (CVE-2024-34102). Sends crafted JSON payloads with
+  nested totalsCollector / dataIsURL definitions against the guest cart
+  estimate-shipping-methods endpoints. Checks for libxml / SimpleXML external
+  entity parser errors (indicating vulnerable unpatched state) versus accessor
+  method rejection errors (indicating APSB24-40 patched state). Read-only
+  diagnostic probe; does not create orders or mutate application data.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL or hostname of the Magento 2 / Adobe Commerce store to probe
+        (e.g., 'https://shop.example.com' or 'example.com').
+    callback_url:
+      type: string
+      description: >
+        Optional out-of-band callback URL or Interactsh URL to test for external
+        DTD retrieval (e.g., 'http://xyz.oob.gl/dtd.xml'). If omitted, a benign
+        local loopback address is used to induce parser I/O error signatures.
+    cart_id:
+      type: string
+      description: >
+        Optional guest cart ID if known. If omitted, the tool automatically
+        attempts to generate an active guest cart via /rest/V1/guest-carts or
+        falls back to default guest cart identifiers.
+    timeout:
+      type: integer
+      description: >
+        HTTP request timeout in seconds (default: 10).
+  required:
+    - target

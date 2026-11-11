@@ -1,0 +1,33 @@
+tool_id: mail_access_probe
+scope_param: target
+
+description: >
+  Interrogate mail retrieval services (IMAP on ports 143/993 or POP3 on ports 110/995)
+  for software fingerprinting, TLS/STARTTLS posture, and cleartext credential exposure.
+  Audits whether unencrypted authentication (AUTH=PLAIN, AUTH=LOGIN, or plaintext USER/PASS)
+  is accepted over plaintext connections (RFC 3501 / RFC 1939 violation), allowing
+  credential interception by network sniffers.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target mail server hostname or IP address, e.g. 'mail.example.com' or '192.168.1.5'.
+    port:
+      type: integer
+      description: >
+        Port to connect to (typically 143 for IMAP, 993 for IMAPS, 110 for POP3, or 995 for POP3S).
+        Defaults to 143.
+    protocol:
+      type: string
+      description: >
+        Optional protocol hint ('imap' or 'pop3'). If omitted, automatically detected
+        from the port number (110/995 -> pop3, 143/993 -> imap).
+    timeout:
+      type: integer
+      description: >
+        Socket connection and read timeout in seconds. Defaults to 5.
+  required:
+    - target

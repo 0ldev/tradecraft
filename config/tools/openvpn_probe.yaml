@@ -1,0 +1,48 @@
+tool_id: openvpn_probe
+scope_param: target
+destructive: false
+
+description: >
+  Fingerprints an OpenVPN server with one UDP or TCP control-channel
+  handshake packet (P_CONTROL_HARD_RESET_CLIENT_V2 -- OpenVPN's own
+  documented wire format for starting a fresh handshake: a 1-byte
+  opcode/key_id, an 8-byte random session id, an empty ack array, and a
+  zero packet id). Checks only whether the response's opcode is
+  HARD_RESET_SERVER_V2, the server's own reply to that packet.
+  Fingerprint only: deliberately does not attempt CVE-2020-15078 (an
+  auth-token username-enumeration oracle that only applies when the
+  server uses deferred auth with --auth-gen-token). Confirming that CVE
+  needs a real TLS-over-control-channel exchange and a crafted auth
+  message, well past the initial handshake this tool sends -- a
+  fingerprint match here means "an OpenVPN server is listening," not
+  "this server is vulnerable to any specific CVE." A timeout with no
+  response is reported as a clean non-match, not a failure: silence is
+  the expected behavior for a filtered port, a closed port, or any
+  non-OpenVPN service, not a sign the probe malfunctioned.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target host or IP, e.g. '10.0.0.5' or 'vpn.example.com'. A
+        'host:port' suffix is ignored -- use the separate 'port'
+        parameter instead.
+    port:
+      type: integer
+      description: >
+        UDP or TCP port to probe. Defaults to 1194, OpenVPN's
+        IANA-registered default port.
+    protocol:
+      type: string
+      description: >
+        Transport to use: 'udp' (OpenVPN's default mode) or 'tcp'
+        (OpenVPN-over-TCP, which frames each packet with a 2-byte
+        length prefix). Defaults to 'udp'.
+    timeout:
+      type: integer
+      description: >
+        Socket timeout in seconds, clamped to 1-10. Defaults to 5.
+  required:
+    - target

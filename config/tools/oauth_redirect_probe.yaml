@@ -1,0 +1,36 @@
+tool_id: oauth_redirect_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests an OAuth/OIDC authorization endpoint's redirect_uri validation
+  by sending a bounded, fixed set of well-known bypass shapes (subdomain
+  trick, suffix-match bypass, '@'-bypass, path-traversal suffix, scheme
+  downgrade) in place of the request's own original redirect_uri, and
+  comparing each response against the response to the unmodified
+  request. Each request is a single unauthenticated GET to the
+  authorization endpoint itself -- no login is completed and no
+  authorization code is ever obtained. Reports "accepted_pre_auth" only
+  when the endpoint immediately redirects toward the attacker-controlled
+  host before any login (a strong, unambiguous signal); a non-redirecting
+  response is reported "inconclusive_requires_login" rather than a false
+  negative, since many IdPs only validate redirect_uri after interactive
+  login completes, which this single request can't observe.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full OAuth/OIDC authorization endpoint URL including its real
+        client_id, response_type, and original redirect_uri query
+        parameters, e.g.
+        'https://idp.example.com/oauth/authorize?client_id=abc&response_type=code&redirect_uri=https://app.example.com/callback'.
+    redirect_uri_param:
+      type: string
+      description: "Name of the redirect_uri query parameter to mutate. Defaults to 'redirect_uri'."
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

@@ -1,0 +1,33 @@
+tool_id: drupal_jsonapi_sqli_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes Drupal Core installations for critical unauthenticated error-based SQL
+  injection (CVE-2026-9082). Tests Drupal's JSON:API endpoint (/jsonapi/*) by
+  passing a safe CAST error test payload within filter condition value keys to
+  verify whether user-controlled parameters improperly reach the SQL query
+  construction layer without performing any destructive data manipulation.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP, hostname, or base URL of the Drupal site (e.g.,
+        'drupal.example.com' or 'https://www.example.com').
+    path:
+      type: string
+      description: >
+        JSON:API resource path to probe (default: '/jsonapi/node/article').
+    host_header:
+      type: string
+      description: >
+        Optional custom HTTP Host header if required for virtual host routing.
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target

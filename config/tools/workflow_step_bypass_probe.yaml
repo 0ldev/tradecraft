@@ -1,0 +1,54 @@
+tool_id: workflow_step_bypass_probe
+scope_param: target
+destructive: true
+destructive_categories:
+  - state_mutation
+
+description: >
+  Tests whether a later step of a multi-step workflow (for example a
+  'payment confirmed', 'verification complete', or 'order finalized'
+  endpoint) accepts a single direct request without the preceding steps
+  having been performed. Sends exactly one real request with the
+  caller-supplied method, body, and headers -- this is a REAL write
+  against live state, not a dry run, hard-capped at one attempt per call
+  with no retries and no method variations. A 2xx response containing
+  'success_marker' is reported as accepted_confirmed; a 2xx without the
+  marker is accepted_unconfirmed and does not by itself confirm that the
+  workflow state changed. 401/403 is blocked, 3xx is redirected, other
+  4xx is rejected, and 5xx is server_error.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL of the later workflow step to call directly, e.g.
+        'https://shop.example.com/api/checkout/42/confirm-payment'.
+    method:
+      type: string
+      description: >
+        HTTP method for the direct step request: GET, POST, PUT, PATCH,
+        or DELETE. Defaults to POST.
+    body:
+      type: string
+      description: >
+        Optional raw request body for the step, e.g.
+        '{"order_id":"42","status":"paid"}'. JSON-object bodies get an
+        application/json Content-Type; anything else is sent as
+        application/x-www-form-urlencoded unless overridden in headers.
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP headers separated by newlines (e.g.
+        'Authorization: Bearer token\nCookie: session=xyz').
+    success_marker:
+      type: string
+      description: >
+        Optional string that must appear in the response body to confirm
+        the step was accepted, e.g. 'payment confirmed' or '"status":"paid"'.
+        Without it, any 2xx is reported as accepted_unconfirmed only.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

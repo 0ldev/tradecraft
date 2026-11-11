@@ -1,0 +1,56 @@
+tool_id: race_condition_probe
+scope_param: url
+destructive: true
+destructive_categories:
+  - state_mutation
+
+description: >
+  Fires a bounded burst of near-simultaneous identical HTTP requests
+  (via a thread pool -- best-effort, not a guaranteed single-packet race
+  primitive) at one URL to detect a TOCTOU race condition: a real,
+  limited resource (a single-use coupon/voucher, a balance check, a
+  rate-limit counter) answering "success" more than once in the burst
+  signals the endpoint can be abused by concurrent requests. Classified
+  destructive: true -- a real resource on the live target may be
+  genuinely, irreversibly consumed by this call (e.g. a real coupon
+  actually gets redeemed); available only when --allow-destructive is
+  specified. Hard-capped at 20 requests per call regardless of the flag.
+  Reports only what was observed (status codes, which attempts matched a
+  success marker); it does not itself judge business-logic severity --
+  more than one matching "success" among the burst is the signal to
+  investigate manually.
+
+parameters:
+  type: object
+  properties:
+    url:
+      type: string
+      description: "Target URL to fire the burst against, e.g. 'https://example.com/api/redeem-coupon'."
+    method:
+      type: string
+      description: "HTTP method to use for every request in the burst. Defaults to 'POST'."
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP request headers (e.g. a session cookie/auth
+        token needed to reach the endpoint), separated by newlines, e.g.
+        'Authorization: Bearer token\nCookie: session=xyz'.
+    data:
+      type: string
+      description: "Optional request body sent identically with every request in the burst."
+    request_count:
+      type: integer
+      description: >
+        Number of near-simultaneous requests to fire. Defaults to 5,
+        hard-capped at 20 regardless of this value.
+    success_marker:
+      type: string
+      description: >
+        Optional substring to look for in each response body that
+        indicates that specific attempt succeeded (e.g. a confirmation
+        message or a new balance value). If omitted, any HTTP 2xx status
+        is treated as a success-shaped response.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10."
+  required: ["url"]

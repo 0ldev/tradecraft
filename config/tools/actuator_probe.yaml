@@ -1,0 +1,28 @@
+tool_id: actuator_probe
+scope_param: target
+destructive: false
+
+description: >
+  GETs a fixed list of 26 well-known Spring Boot Actuator paths (both
+  the modern '/actuator/*' prefix and the legacy Spring Boot 1.x
+  unprefixed form) against a base URL and reports which respond with
+  actuator-shaped content (JSON body, or a 200/401/403 rather than a
+  generic 404 -- a 401/403 still confirms the framework is present and
+  mounted, just access-controlled). Distinguishes high-value exposures
+  (env, heapdump, configprops, mappings, loggers, httptrace, trace,
+  dump -- direct secret/config/route leaks) from low-value ones
+  (health, info, metrics, beans, threaddump) in the report. A single
+  GET per path, no payloads, no state mutation.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL to probe, e.g. 'https://example.com' (no trailing
+        path -- each actuator path is appended to this).
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 8.
+  required: ["target"]

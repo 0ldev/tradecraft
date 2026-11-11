@@ -1,0 +1,33 @@
+tool_id: recall_memory
+required_binary: null
+scope_param: null
+
+description: >
+  Search cross-engagement historical memory (FTS5 BM25 + vector similarity)
+  across all prior Tradecraft engagements for verified findings, service facts,
+  and notes. Use this when you fingerprint a specific technology stack, WAF,
+  CMS, CVE, or domain pattern to recall what vulnerabilities, configurations,
+  or bypasses were found on prior assessments.
+
+parameters:
+  type: object
+  properties:
+    query:
+      type: string
+      description: >
+        Search query (technology name, CVE ID, WAF/server product, endpoint path,
+        or vulnerability class, e.g. 'WordPress xmlrpc', 'Cloudflare WAF', 'Spring Actuator').
+    target:
+      type: string
+      description: >
+        Optional hostname or root domain filter to restrict results to a specific
+        target or organization. Omit to search across all past targets.
+    kind:
+      type: string
+      description: >
+        Optional entry type filter: 'finding', 'fact', or 'note'. Omit to search all entry types.
+    limit:
+      type: integer
+      description: >
+        Maximum number of ranked matches to return (1 to 50, default 10).
+  required: ["query"]

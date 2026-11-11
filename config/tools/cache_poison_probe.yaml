@@ -1,0 +1,24 @@
+tool_id: cache_poison_probe
+scope_param: target
+
+description: >
+  Test whether a URL's cache can be poisoned via an "unkeyed" header --
+  an input many caches don't fold into their cache key but the origin
+  app reads anyway (X-Forwarded-Host, X-Forwarded-Scheme, X-Host,
+  X-Original-URL). Sends a cache-busted request carrying a random
+  marker in each header in turn, then a second clean request to the
+  same URL; if the marker leaks into the clean response, the poisoned
+  response is now cached and served to everyone, not just the
+  requester. Checks all four unkeyed-input candidates, not just the
+  first that reflects.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL to test, e.g. 'https://example.com/page'. Needs an
+        actual cache in front of the origin to be testable at all --
+        most useful against a CDN/reverse-proxy-fronted URL.
+  required: ["target"]

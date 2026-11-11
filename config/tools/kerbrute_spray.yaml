@@ -1,0 +1,37 @@
+tool_id: kerbrute_spray
+required_binary: kerbrute
+scope_param: domain
+destructive: true
+destructive_categories:
+  - account_lockout_risk
+description: >
+  Performs bounded horizontal Kerberos password spraying across active domain usernames.
+  Strictly enforces a single candidate password per call to guarantee zero account lockout risk.
+parameters:
+  type: object
+  required:
+    - domain
+    - password
+  properties:
+    domain:
+      type: string
+      description: Target Active Directory domain name (e.g. 'corp.local').
+    password:
+      type: string
+      description: The single password string to spray across candidate usernames (e.g. 'Winter2026!').
+    user_wordlist:
+      type: string
+      enum: ["kerbrute-usernames", "kerbrute-usernames-medium", "kerbrute-usernames-large"]
+      description: >
+        Which bundled username wordlist to spray against. Defaults to
+        'kerbrute-usernames'. 'kerbrute-usernames' (30 entries: administrator,
+        admin, guest, krbtgt, support, and similar AD service/admin account
+        names): fast first pass. 'kerbrute-usernames-medium' (500 entries,
+        from SecLists real-world username data): broader human-name coverage.
+        'kerbrute-usernames-large' (5000 entries, from the same source):
+        thorough sweep. Wordlist size has no effect on account-lockout
+        risk here -- every call still sends exactly one guess per username
+        regardless of how many are in the list (see docs/policy.md).
+    dc_ip:
+      type: string
+      description: Optional IP address of Domain Controller.

@@ -1,0 +1,54 @@
+tool_id: ticketer
+required_binary: ticketer.py
+scope_param: domain
+destructive: true
+destructive_categories:
+  - credential_or_secret_exposure
+
+description: >
+  Forges a Kerberos golden ticket entirely offline from a captured
+  krbtgt NT hash or AES key (e.g. from secretsdump) -- no KDC round-trip,
+  no network target at all. The forged ticket authenticates as any
+  domain user with no further credential check, which is domain-wide
+  persistence: treat the krbtgt hash itself as having compromised the
+  whole domain once obtained. Returns the forged ticket's .ccache file,
+  base64-encoded, as ccache_b64.
+
+parameters:
+  type: object
+  properties:
+    domain:
+      type: string
+      description: >
+        Fully qualified Active Directory domain name, e.g. 'corp.local'.
+        Required.
+    domain_sid:
+      type: string
+      description: >
+        The domain's SID in 'S-1-5-21-<a>-<b>-<c>' form (no trailing RID
+        -- a SID ending in e.g. '-500' is a user/group SID, not the
+        domain SID, and is rejected). Available from bloodhound's
+        domain_sids or powerview's domain_sid (a Get-Domain query).
+    krbtgt_hash:
+      type: string
+      description: >
+        The krbtgt account's NT hash or Kerberos key, as a hex string
+        (e.g. from secretsdump). Its expected length depends on
+        hash_type: 32 hex characters for 'ntlm' or
+        'aes128-cts-hmac-sha1-96', 64 for 'aes256-cts-hmac-sha1-96'.
+    hash_type:
+      type: string
+      enum: ["ntlm", "aes128-cts-hmac-sha1-96", "aes256-cts-hmac-sha1-96"]
+      description: >
+        What krbtgt_hash is (matches secretsdump's own hash_type field
+        for a dumped krbtgt entry, so its output can be passed straight
+        through). Defaults to 'ntlm'.
+    username:
+      type: string
+      description: >
+        The user the forged ticket will authenticate as. Defaults to
+        'Administrator'.
+  required:
+    - domain
+    - domain_sid
+    - krbtgt_hash

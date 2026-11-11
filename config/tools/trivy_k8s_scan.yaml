@@ -1,0 +1,45 @@
+tool_id: trivy_k8s_scan
+required_binary: trivy
+scope_param: null
+destructive: false
+
+description: >
+  Read-only security scan of a live Kubernetes cluster via Aqua Trivy
+  (`trivy k8s`), using a kubeconfig file on the local filesystem. Reports
+  two things: known CVEs in the images of running workloads, and Kubernetes
+  misconfigurations (RBAC, pod security, exposed secrets). Scans the whole
+  cluster by default, or one namespace when 'namespace' is given. Never
+  applies fixes and never writes to the cluster -- runs with Trivy's node
+  collector disabled, since that collector otherwise deploys its own Job
+  and namespace into the cluster to gather node configuration (so
+  node-level findings are out of scope for this read-only tool). Runs with
+  a 600s process
+  cap (trivy's own 540s timeout sits inside it). Returns misconfigurations
+  and CVEs each sorted by severity (CRITICAL first), capped at 100 with a
+  truncation flag and per-severity counts. The full report is kept as
+  evidence.
+
+parameters:
+  type: object
+  properties:
+    kubeconfig:
+      type: string
+      description: >
+        Path to a kubeconfig file on the scanning host (e.g.
+        '/home/operator/.kube/config' or a file in the engagement directory).
+        The file must already exist; inline kubeconfig YAML is not accepted.
+        The kubeconfig's cluster endpoint is the scan target, so only pass a
+        kubeconfig for a cluster that is in scope.
+    namespace:
+      type: string
+      description: >
+        Optional Kubernetes namespace to restrict the scan to, e.g. 'payments'.
+        Must be a valid namespace name (lowercase letters, digits and '-').
+        Omit to scan the whole cluster.
+    context:
+      type: string
+      description: >
+        Optional kubeconfig context name to scan, required only when the
+        kubeconfig file defines more than one context (e.g.
+        'prod-cluster-admin'). Omit to use the file's current context.
+  required: ["kubeconfig"]

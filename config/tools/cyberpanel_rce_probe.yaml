@@ -1,0 +1,32 @@
+tool_id: cyberpanel_rce_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes CyberPanel instances for unauthenticated Remote Code Execution
+  (CVE-2024-51567 and CVE-2024-51378). Automatically inspects CyberPanel
+  management ports (default 8090, 8443, 443, 80) and tests candidate endpoints
+  (/ftp/getresetstatus, /dns/getresetstatus, /dataBases/upGrademysqlStatus) via
+  OPTIONS/POST requests with crafted statusfile parameters. Uses a benign,
+  read-only verification probe (id and nonce echo) to verify command execution
+  without modifying server state.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target hostname, IP address, or full URL to probe (e.g., '192.168.1.50',
+        'cpanel.example.com', or 'https://panel.example.com:8090').
+    custom_port:
+      type: integer
+      description: >
+        Optional custom management port to probe if CyberPanel runs on a
+        non-standard port.
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target

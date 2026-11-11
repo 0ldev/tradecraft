@@ -1,0 +1,17 @@
+tool_id: interactsh
+required_binary: interactsh-client
+description: "Generates Out-Of-Band (OAST) interaction payloads and polls for out-of-band DNS, HTTP, or SMTP callbacks to detect blind vulnerabilities (Blind SSRF, Blind SQLi, Blind Command Injection, Blind XXE). A 'poll' result's each interaction includes after_domain_generated: true/false/null, computed by the tool itself (true/false means the interaction's own timestamp is after/before the current payload domain was created; null means its timestamp couldn't be parsed). An interaction with after_domain_generated: false cannot have been caused by anything sent during this engagement -- it predates the domain's own creation."
+parameters:
+  type: object
+  properties:
+    action:
+      type: string
+      description: "OAST action to execute: 'generate' (starts background listener and returns payload URL/domain), 'poll' (checks and returns captured interactions), 'status' (checks listener health and current payload), or 'stop' (stops the background listener)."
+    server:
+      type: string
+      description: "Interactsh server to connect to (default: 'oast.me')."
+    poll_interval:
+      type: integer
+      description: "Polling interval in seconds for interaction retrieval (default: 2)."
+  required:
+    - action

@@ -1,0 +1,54 @@
+tool_id: graphql_authz_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests GraphQL Query-type fields for Broken Object Level Authorization
+  (BOLA) -- a real, complete finding on its own when an unauthenticated
+  query still resolves another user's or object's private data.
+  Deliberately scoped to queries only, never mutations, which keeps this
+  tool safely non-destructive. From the schema (either schema_json,
+  or a fresh introspection query if omitted), picks up to 5 Query fields
+  that take an id-shaped argument (name containing 'id'/'key'/'uuid'),
+  prioritizing fields whose own name suggests a single-object lookup
+  (user, order, account, invoice, etc.). For each, builds a minimal
+  query using sample_id and a small set of commonly-present scalar
+  fields (id, name, email, username) filtered to ones the return type
+  actually declares, sends it once with headers_privileged (the
+  baseline -- confirms sample_id resolves to real data) and once with
+  headers_unauth (default: no auth header at all); if the unauthenticated
+  response still returns the same non-null data, that field is flagged.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "GraphQL endpoint URL, e.g. 'https://api.example.com/graphql'."
+    sample_id:
+      type: string
+      description: >
+        A real object id/key you already have access to (this tool
+        cannot guess one), e.g. a known order id or user id.
+    schema_json:
+      type: string
+      description: >
+        Optional raw introspection JSON you already have (e.g. from
+        graphql_introspect). If omitted, this tool runs its own deeper
+        introspection query (field args + return-type fields, which
+        graphql_introspect's own minimal query doesn't fetch).
+    headers_privileged:
+      type: string
+      description: >
+        Optional newline-separated headers for the baseline request
+        (e.g. 'Authorization: Bearer <token>'), establishing that
+        sample_id resolves to real data when properly authenticated.
+    headers_unauth:
+      type: string
+      description: >
+        Optional newline-separated headers for the unauthenticated
+        attempt. Defaults to no auth header at all.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10, capped at 20."
+  required: ["target", "sample_id"]

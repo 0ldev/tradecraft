@@ -1,0 +1,21 @@
+tool_id: clairvoyance
+required_binary: python3
+scope_param: target
+
+description: >
+  Reconstruct a GraphQL API's schema (query/mutation field names)
+  WITHOUT relying on introspection, by sending field-guessing queries
+  and reading the server's own error messages to infer valid field
+  names. Only useful where introspection is disabled -- if
+  graphql_introspect already succeeded on this endpoint, this tool adds
+  nothing further.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL of the GraphQL endpoint, e.g.
+        'https://api.example.com/graphql'.
+  required: ["target"]

@@ -1,0 +1,45 @@
+tool_id: cloud_identity_pool_probe
+scope_param: identity_pool_id
+destructive: true
+destructive_categories:
+  - credential_or_secret_exposure
+
+description: >
+  Checks whether an AWS Cognito Identity Pool grants unauthenticated
+  visitors real temporary AWS credentials, with no login at all. Uses
+  AWS's plain JSON 1.1 protocol directly (no boto3/AWS SDK dependency)
+  against https://cognito-identity.<region>.amazonaws.com/: a GetId call
+  with no credentials either succeeds (unauthenticated identity creation
+  allowed -- the weaker signal) or fails; if it succeeds, a
+  GetCredentialsForIdentity call with that identity either returns a
+  real AccessKeyId/SecretKey/SessionToken (the strong finding -- a real
+  usable credential handed to anyone, unauthenticated) or is denied by
+  the pool's IAM trust conditions. Classified destructive: true because
+  GetId creates a real, persistent identity record in AWS's backend --
+  the same reasoning auth_bootstrap's destructive classification uses
+  for registering a throwaway account through an intended public flow.
+  Reports any obtained credentials in full -- this tool does not use
+  them itself; the operator assesses the IAM role's actual permissions
+  afterward with their own tooling, same non-pivoting convention
+  secretsdump/ticketer already follow for extracted secrets. Hard-capped
+  at 5 identity pool ids per call.
+
+parameters:
+  type: object
+  properties:
+    identity_pool_id:
+      type: string
+      description: >
+        Comma-separated AWS Cognito Identity Pool id(s), format
+        '<region>:<uuid>', e.g.
+        'us-east-1:1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d'. Hard-capped at
+        5 per call.
+    region:
+      type: string
+      description: >
+        Optional AWS region to use instead of the region inferred from
+        each identity_pool_id's own '<region>:' prefix.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10, capped at 20."
+  required: ["identity_pool_id"]

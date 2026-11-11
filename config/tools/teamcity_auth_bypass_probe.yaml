@@ -1,0 +1,32 @@
+tool_id: teamcity_auth_bypass_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes JetBrains TeamCity CI/CD servers for unauthenticated authentication
+  bypass vulnerabilities (CVE-2024-27198 and CVE-2024-27199). Tests Spring MVC
+  URL dispatching endpoints (/hax?jsp=/app/rest/server,
+  /login.html?jsp=/app/rest/server) to verify whether server metadata and
+  internal REST API routes are exposed without requiring valid user credentials.
+  Safe read-only reconnaissance probe; does not create accounts, generate admin
+  tokens, or alter build configurations.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP, hostname, or full URL of the candidate TeamCity server (e.g.,
+        'ci.example.com', '192.168.1.50', or 'http://teamcity.corp.com:8111').
+    custom_port:
+      type: integer
+      description: >
+        Optional custom web port to probe if TeamCity runs on a non-standard
+        port.
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target

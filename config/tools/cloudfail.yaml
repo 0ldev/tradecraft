@@ -1,0 +1,15 @@
+tool_id: cloudfail
+required_binary: cloudfail
+scope_param: target
+description: "Unmasks the backend origin IP address of targets protected by Cloudflare using historical DNS records, Crimeflare databases, and direct subdomains."
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Target domain or apex to test for Cloudflare origin IP unmasking (e.g. 'example.com' or 'www.example.com')."
+    subdomains:
+      type: string
+      description: "Subdomain wordlist stored in cloudfail data dir, default: 'subdomains_top100.txt' (or 'subdomains.txt' for extended discovery)."
+  required:
+    - target

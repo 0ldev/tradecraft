@@ -1,0 +1,26 @@
+tool_id: firebase_probe
+scope_param: project_ids
+destructive: false
+
+description: >
+  Checks a candidate Firebase project ID for a publicly-readable
+  Realtime Database (GET 'https://<project-id>-default-rtdb.firebaseio.com/.json')
+  and an open-by-default Firestore database (GET against the public
+  Firestore REST document-listing endpoint). Read-only: one GET per
+  check per candidate, no write attempted. Candidate project IDs are
+  typically guessable from the target's own branding/domain keyword
+  (Firebase project IDs are frequently '<company-keyword>' or
+  '<company-keyword>-<suffix>').
+
+parameters:
+  type: object
+  properties:
+    project_ids:
+      type: string
+      description: >
+        Comma-separated candidate Firebase project IDs, e.g.
+        'examplecorp,examplecorp-prod,examplecorp-app'.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["project_ids"]

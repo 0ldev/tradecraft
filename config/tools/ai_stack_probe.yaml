@@ -1,0 +1,26 @@
+tool_id: ai_stack_probe
+required_binary: null
+scope_param: target
+destructive: false
+
+description: >
+  Detects and probes exposed, unauthenticated AI infrastructure, model serving engines,
+  and workflow orchestrators (Ollama, vLLM, Langflow, Flowise, Ray, LiteLLM Proxy, MLflow).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: Target hostname, IP address, or URL (e.g. '192.168.1.50', 'ai.example.com', or 'http://ai.example.com:11434').
+    service:
+      type: string
+      description: Specific AI service to probe ('ollama', 'vllm', 'langflow', 'flowise', 'ray', 'litellm', 'mlflow', or 'auto' to probe all). Defaults to 'auto'.
+    port:
+      type: integer
+      description: Specific TCP port to probe. If omitted, uses default service port or probes standard AI infrastructure ports.
+    timeout:
+      type: integer
+      description: Probe connection and HTTP request timeout in seconds. Defaults to 5.
+  required:
+    - target

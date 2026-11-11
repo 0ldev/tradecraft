@@ -1,0 +1,49 @@
+tool_id: artifact_repo_exposure_probe
+scope_param: target
+destructive: false
+
+description: >
+  Checks for unauthenticated access to three well-known artifact
+  repositories -- Nexus 3, Artifactory, and Harbor's own REST API (not
+  the Docker Registry v2 pull API registry_tag_enum already covers).
+  Anonymous read access to an artifact repo commonly exposes proprietary
+  source, build secrets, and sometimes signing/deploy capability. Nexus:
+  fingerprints via its own "Server: Nexus/<version>" response header,
+  then GETs /service/rest/v1/components for one or more repository
+  names (operator-supplied, or a small built-in guess list) -- a 200
+  with real component data means anonymous read access is enabled.
+  Artifactory: fingerprints via /api/system/ping's documented "OK" body
+  (always public by design), then GETs /api/repositories -- a 200 JSON
+  list means anonymous access is enabled (Artifactory ships with this
+  enabled by default historically). Harbor: fingerprints via
+  /api/v2.0/systeminfo (always public by design), then compares
+  /api/v2.0/projects with no auth against the same call filtered to
+  ?public=true (also public by design, the baseline) -- the unfiltered
+  call returning MORE projects than the baseline means private projects
+  are visible without authentication; a bare 200 on the unfiltered call
+  alone is NOT the vulnerability signal. Performs only anonymous GETs;
+  never submits credentials, never uploads or deletes anything.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL or host of the candidate artifact repository, e.g.
+        'https://nexus.example.com' or 'artifactory.example.com:8081'. A
+        bare host is treated as https.
+    service:
+      type: string
+      description: "'nexus', 'artifactory', 'harbor', or 'auto' (default: checks all three)."
+    repository:
+      type: string
+      description: >
+        Nexus only: comma-separated repository name(s) to check for
+        anonymous component listing, e.g. 'maven-releases,npm-hosted'.
+        Defaults to a built-in guess list ('maven-releases', 'npm-hosted',
+        'docker-hosted') if omitted.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10, capped at 20."
+  required: ["target"]

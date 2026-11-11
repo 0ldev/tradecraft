@@ -1,0 +1,35 @@
+tool_id: registry_tag_enum
+scope_param: repository
+destructive: false
+
+description: >
+  Enumerates tags for a public container image repository via the
+  Docker Registry HTTP API V2's own GET /v2/<name>/tags/list endpoint.
+  Defaults to Docker Hub (registry-1.docker.io) -- obtains the required
+  anonymous bearer token from Docker Hub's own public auth service
+  first, exactly as an unauthenticated 'docker pull' does. Supports any
+  V2-compliant registry via the registry parameter (e.g. a self-hosted
+  one found during recon). Read-only: lists tags, never pulls a layer
+  or image manifest.
+
+parameters:
+  type: object
+  properties:
+    repository:
+      type: string
+      description: >
+        Repository path, e.g. 'library/nginx' or 'examplecorp/app'
+        (Docker Hub's official-image repos live under 'library/').
+    registry:
+      type: string
+      description: >
+        Registry hostname. Defaults to 'registry-1.docker.io' (Docker
+        Hub). For a non-Docker-Hub V2 registry found during recon, pass
+        its hostname -- anonymous-token acquisition is skipped for a
+        non-Docker-Hub registry and the tags/list call is tried
+        directly without a token first, since many self-hosted
+        registries allow anonymous pulls with no auth at all.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["repository"]

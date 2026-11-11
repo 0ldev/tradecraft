@@ -1,0 +1,44 @@
+profile_id: cloud
+description: >
+  Cloud infrastructure assessment profile. Includes cloud asset enumeration,
+  metadata service testing, and leaked credential discovery tools.
+tool_ids:
+  - cloudenum
+  - cloudfox
+  - registry_tag_enum
+  - firebase_probe
+  - azure_tenant_recon
+  - bucket_permission_exploit
+  - bucket_permission_probe
+  - pacu_enum
+  - pacu_exploit
+  - scoutsuite_audit
+  - trivy_scan
+  - form_fuzzer
+  - shodan_internetdb
+  - favicon_correlator
+  - dangling_resource_probe
+  - trufflehog
+  - httpx_probe
+  - cewl
+  - http_request
+  - http_write_request
+  - nmap_scan
+  - tcp_probe
+  - docker_api_probe
+  - jenkins_unauth_probe
+  - ssrf_probe
+  - cloud_metadata_credential_probe
+  - unauth_datastore_probe
+  - sensitive_file_probe
+  - dependency_confusion_probe
+  - serverless_exposure_probe
+  - cicd_exposure_probe
+  - artifact_repo_exposure_probe
+  - cloud_identity_pool_probe
+  - redis_rce_exploit
+  - jupyter_exposure_probe
+  - ai_stack_probe
+  - perimeter_gateway_probe
+  - openvpn_probe
+  - teamcity_auth_bypass_probe

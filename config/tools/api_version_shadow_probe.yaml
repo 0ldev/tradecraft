@@ -1,0 +1,40 @@
+tool_id: api_version_shadow_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests for a shadow/zombie API version with weaker authentication (OWASP
+  API9:2023, Improper Inventory Management). Takes one endpoint expected to
+  require authentication, sends it unauthenticated as a baseline, and if
+  that baseline is 401/403 retries the same resource under a bounded set of
+  old/alternate version prefixes: the current vN segment replaced with
+  v0-v5/beta/legacy/internal, plus /api/legacy, /api/v1, /v1, and /legacy
+  prefixes when no version segment exists. Only non-mutating methods (GET,
+  HEAD, OPTIONS, POST) are permitted; no credentials are sent. Hard-capped
+  at 12 variant requests. A variant is reported accessible only when it
+  answers 2xx with a body length different from the blocked baseline.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL of the confirmed-authenticated endpoint, e.g.
+        'https://api.example.com/v2/users' or
+        'https://api.example.com/admin'.
+    method:
+      type: string
+      description: >
+        HTTP method to use: 'GET' (default), 'HEAD', 'OPTIONS', or 'POST'.
+        'PUT', 'DELETE', and 'PATCH' are rejected -- use http_write_request
+        for those.
+    body:
+      type: string
+      description: >
+        Optional request body for non-GET methods, sent unchanged to every
+        version variant.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

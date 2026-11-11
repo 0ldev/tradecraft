@@ -1,0 +1,72 @@
+tool_id: cupp
+required_binary: cupp.py
+destructive: false
+
+description: >
+  Generates a personalized candidate password list from OSINT details
+  about a specific target person (name, birthdate, partner, pet,
+  company -- the kind of thing a company "about us" page or a social
+  media profile turns up), via CUPP. Entirely local text generation, no
+  network calls, never submits a guess itself. Only 'name' is required;
+  leave any other field blank if you don't have that detail -- cupp
+  skips it rather than guessing. Feed its output into hydra,
+  kerbrute_spray, or sqli_login's username/password parameters as a
+  literal comma-separated list once you've picked the most promising
+  candidates -- it doesn't write a wordlist file those tools can
+  reference by name. UNVERIFIED against a live cupp install -- see
+  tradecraft/adapters/cupp/execute.py's module docstring.
+
+parameters:
+  type: object
+  properties:
+    name:
+      type: string
+      description: "Target person's first name. The only required field."
+    surname:
+      type: string
+      description: "Target person's surname/last name."
+    nickname:
+      type: string
+      description: "Target person's nickname or online handle."
+    birthdate:
+      type: string
+      description: "Target person's birthdate, format DDMMYYYY (e.g. '15031990')."
+    partner_name:
+      type: string
+      description: "Target person's partner's first name."
+    partner_nickname:
+      type: string
+      description: "Target person's partner's nickname."
+    partner_birthdate:
+      type: string
+      description: "Target person's partner's birthdate, format DDMMYYYY."
+    child_name:
+      type: string
+      description: "Target person's child's first name."
+    child_nickname:
+      type: string
+      description: "Target person's child's nickname."
+    child_birthdate:
+      type: string
+      description: "Target person's child's birthdate, format DDMMYYYY."
+    pet_name:
+      type: string
+      description: "Target person's pet's name."
+    company:
+      type: string
+      description: "Target person's employer/company name."
+    keywords:
+      type: string
+      description: >
+        Extra comma-separated keywords to mix in -- e.g. words scraped by
+        cewl from the target's own site, or terms specific to their role.
+    add_special_chars:
+      type: boolean
+      description: "Append common special characters to generated candidates. Defaults to false."
+    add_random_numbers:
+      type: boolean
+      description: "Append common number suffixes to generated candidates. Defaults to false."
+    leet_mode:
+      type: boolean
+      description: "Also generate leet-speak variants (e.g. 'a' -> '4'). Defaults to false."
+  required: ["name"]

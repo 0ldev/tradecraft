@@ -1,0 +1,31 @@
+tool_id: wpscan
+required_binary: wpscan
+scope_param: target
+
+description: >
+  Scan WordPress sites for core vulnerabilities, vulnerable plugins, themes, user accounts, and configuration exposures using WPScan.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target WordPress URL or hostname (e.g. 'https://example.com' or 'blog.example.com').
+    enumerate:
+      type: string
+      description: >
+        Enumeration targets, e.g. 'u' (users), 'p' (plugins), 't' (themes), or 'u,p'. Defaults to 'u'.
+    detection_mode:
+      type: string
+      description: >
+        Detection mode: 'passive' or 'aggressive'. Defaults to 'passive' to ensure fast execution without heavy request brute-forcing.
+    api_token:
+      type: string
+      description: >
+        Optional WPScan API token for vulnerability database queries.
+    disable_tls_checks:
+      type: boolean
+      description: >
+        Disable TLS/SSL certificate checks. Defaults to true.
+  required: ["target"]

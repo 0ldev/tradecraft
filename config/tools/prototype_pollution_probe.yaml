@@ -1,0 +1,40 @@
+tool_id: prototype_pollution_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests for server-side prototype pollution by injecting
+  __proto__/constructor.prototype-shaped keys (in both query parameters
+  and a JSON body) carrying a unique marker property, across a bounded
+  set of 4 injection vectors. If a separate verify_url on the same
+  application is supplied, sends one clean follow-up request there and
+  checks whether the marker leaked across -- confirming the pollution
+  reached a shared global object rather than just being echoed back in
+  the same response. Purely in-memory/observational: this tool does
+  NOT target persistent storage, and a positive result means an
+  injected property was observed in a response, not that any data was
+  written to disk or a database.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Endpoint URL that accepts JSON body or query parameters merged
+        server-side, e.g. 'https://example.com/api/search'.
+    verify_url:
+      type: string
+      description: >
+        Optional different endpoint on the same application to check
+        for cross-endpoint pollution leakage, e.g.
+        'https://example.com/api/profile'.
+    body:
+      type: string
+      description: >
+        Optional baseline JSON request body as a string, used as the
+        starting point for the JSON-shaped injection vectors.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

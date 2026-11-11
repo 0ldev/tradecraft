@@ -1,0 +1,31 @@
+tool_id: auth_bootstrap
+destructive: true
+destructive_categories:
+  - persistent_artifact
+scope_param: target
+
+description: >
+  Attempts self-registration and login on a target web application using a disposable,
+  high-entropy throwaway account, returning an authenticated session token or cookie.
+  This creates real state on the live target (an account that persists after the engagement)
+  and is classified as destructive. Always reports the email used so it can be audited
+  or removed. Can be guided with explicit registration and login endpoint paths when discovered.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL or host of the target web application, e.g. 'https://app.example.com'.
+    register_path:
+      type: string
+      description: >
+        Optional specific registration endpoint path (e.g. '/api/v1/auth/register' or '/signup').
+        If omitted, common registration endpoint paths are probed automatically.
+    login_path:
+      type: string
+      description: >
+        Optional specific login endpoint path (e.g. '/api/v1/auth/login' or '/login').
+        If omitted, common login endpoint paths are probed automatically.
+  required: ["target"]

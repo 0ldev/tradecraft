@@ -1,0 +1,20 @@
+tool_id: log_note
+required_binary: null
+scope_param: null
+
+description: >
+  Record a short note in the engagement log -- an observation, a plan,
+  something to come back to. Use this to think out loud and keep track of
+  state across turns; it costs nothing and nothing is lost from the
+  engagement log by over-using it. It is not read by the final report:
+  the report's Findings section is built only from log_finding entries,
+  never from log_note text. A confirmed finding recorded only here will
+  not appear in the report.
+
+parameters:
+  type: object
+  properties:
+    text:
+      type: string
+      description: "The note to record."
+  required: ["text"]

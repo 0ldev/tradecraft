@@ -1,0 +1,21 @@
+tool_id: linkfinder
+required_binary: python3
+scope_param: target
+
+description: >
+  Fetch a URL and crawl every JavaScript file it references (via
+  LinkFinder's own built-in crawl), extracting path- and URL-shaped
+  strings (candidate API routes/endpoints) found in that JS. Treat
+  results as candidates to verify with http_request, not confirmed
+  endpoints -- regex-based extraction on minified JS can include false
+  positives.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL to fetch and scan for embedded JS endpoints, e.g.
+        'https://sso.exampleauto.com.br'.
+  required: ["target"]

@@ -1,0 +1,60 @@
+tool_id: powerview
+required_binary: powerview
+scope_param: target
+destructive: false
+
+description: >
+  Active Directory domain and object enumeration using PowerView queries (users, groups,
+  computers, domain controllers, trusts, and ACLs) over LDAP/LDAPS. Read-only detection probe
+  (destructive: false).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target Domain Controller (DC) IP or hostname, e.g. '10.0.0.1' or 'dc01.corp.local'.
+        Must be a hostname/FQDN, not a bare IP, when kerberos is true --
+        Kerberos service tickets are bound to a hostname (SPN), not an
+        address.
+    domain:
+      type: string
+      description: >
+        Target Active Directory domain name, e.g. 'corp.local' or 'contoso.com'.
+    username:
+      type: string
+      description: >
+        Optional Active Directory username to authenticate with. If omitted, anonymous or
+        unauthenticated connection is attempted.
+    password:
+      type: string
+      description: >
+        Optional plaintext password for the Active Directory user.
+    hashes:
+      type: string
+      description: >
+        Optional NTLM hash string ('LMHASH:NTHASH' or 'NTHASH') for pass-the-hash authentication.
+    query:
+      type: string
+      description: >
+        PowerView query command to run, e.g. 'Get-DomainUser', 'Get-DomainGroup',
+        'Get-DomainComputer', 'Get-DomainController', 'Get-DomainTrust', or 'Get-Domain'
+        (default: 'Get-DomainUser').
+    use_ldap:
+      type: boolean
+      description: >
+        Use plain LDAP (port 389) instead of LDAPS (port 636) (default: false).
+    kerberos:
+      type: boolean
+      description: >
+        Use Kerberos authentication (-k flag) instead of NTLM (default: false).
+        Required (set to true) for ccache_b64 to take effect.
+    ccache_b64:
+      type: string
+      description: >
+        Optional base64-encoded Kerberos ccache (e.g. ticketer's forged
+        ticket) to authenticate with instead of password/hashes. Only
+        takes effect when kerberos is true; materialized into a
+        disposable KRB5CCNAME file for this one call only.
+  required: ["target", "domain"]

@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.env
+.pytest_cache/
+engagements/
+*.log
+tmp/*
+!tmp/.gitkeep
+
+# Local-only. Kept on disk, never committed.
+AGENTS.md
+ROADMAP.md
+
+# Local convenience only -- nothing else in the repo (docs, scripts,
+# CI) builds or runs through it. Kept locally for whoever wants it.
+docker-compose.yml
+
+# Dotfiles/dotdirs are local-only by default (editor configs, .claude/,
+# .env*, etc.) -- this only affects new/untracked files, not ones already
+# tracked below.
+.*
+!.gitignore
+!.dockerignore
+!.env.example
+!docs/.gitkeep
+!tmp/.gitkeep
+!.github/
+!.github/**

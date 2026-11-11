@@ -1,0 +1,19 @@
+tool_id: favicon_correlator
+scope_param: target
+
+description: >
+  Fetches a target's /favicon.ico and correlates its hash against
+  Shodan's favicon-hash search index to find other IPs/hosts serving
+  the same favicon -- a real technique for finding un-fronted origins
+  and related infrastructure sharing a codebase or deployment.
+  Requires a paid Shodan API key with favicon-search access (SHODAN_API_KEY).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL or hostname to fetch /favicon.ico from, e.g.
+        'https://exampleauto.com.br' or 'exampleauto.com.br'.
+  required: ["target"]

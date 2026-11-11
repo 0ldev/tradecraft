@@ -1,0 +1,32 @@
+tool_id: jenkins_unauth_probe
+scope_param: target
+destructive: false
+
+description: >
+  Checks whether a Jenkins CI/CD server is reachable and, specifically,
+  whether its Groovy script console (/script) renders without requiring
+  login -- an unauthenticated script console is full remote code
+  execution once a script is submitted, and exposed Jenkins is one of
+  the most common real-world CI/CD breach vectors (ransomware groups
+  specifically scan for it). Performs only anonymous GETs: the root
+  page (to fingerprint Jenkins via its own X-Jenkins response header),
+  /whoAmI/api/json (confirms anonymous vs. authenticated session),
+  /script (reports only whether the console form itself renders --
+  never submits a script), /manage (admin panel reachability), and
+  /api/json (job count and executor mode). Never submits a Groovy
+  script, never triggers a build, never calls any endpoint with side
+  effects -- confirmation-only recon.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL or host of the candidate Jenkins instance, e.g.
+        'https://ci.example.com' or 'ci.example.com:8080'. A bare host
+        is treated as https.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10."
+  required: ["target"]

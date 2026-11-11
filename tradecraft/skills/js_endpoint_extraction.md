@@ -1,0 +1,6 @@
+`linkfinder` fetches a page and crawls every script it references -- running it against every discovered host wastes calls on hosts with nothing to extract.
+
+- Run it against hosts already showing signs of being an interactive app with its own client-side routing/API calls -- a detected JS framework (AngularJS/Vue/React), an SPA-shaped title/loading screen, or a login/account-management flow. Skip static marketing pages and pages that are mostly server-rendered HTML.
+- `subjs` crawls a page to discover its JavaScript file URLs; `linkfinder` extracts hidden endpoints and API routes from inside a specific JS file or page -- pair them (`subjs` first to map JS assets, then `linkfinder` on interesting bundles), rather than treating either as redundant.
+- Treat its output as candidates, not confirmed endpoints -- verify an interesting-looking result with http_request before logging a finding based on it alone.
+- When multiple subdomains serve variants or staging builds of the same application (e.g. `adm`, `adm-beta`, `adm-new`), complete deep endpoint extraction on one instance first. For sister subdomains, inspect script names/hashes or diff entrypoints first rather than running unguided full crawls against identical bundles.

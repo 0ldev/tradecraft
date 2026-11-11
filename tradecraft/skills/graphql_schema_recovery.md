@@ -1,0 +1,1 @@
+Run `clairvoyance` only after `graphql_introspect` has already reported introspection disabled on that endpoint -- if introspection succeeded, `clairvoyance`'s field-guessing pass adds nothing and just spends a long call for no new information.

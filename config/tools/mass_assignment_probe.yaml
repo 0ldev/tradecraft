@@ -1,0 +1,50 @@
+tool_id: mass_assignment_probe
+scope_param: target
+destructive: true
+destructive_categories:
+  - state_mutation
+
+description: >
+  Tests for mass assignment / Broken Object Property Level Authorization
+  (OWASP API3) by sending a real write request per candidate
+  privilege-escalating field (e.g. role, isAdmin, admin, privilege,
+  plan, price, balance, verified, is_staff) that isn't already present
+  in the operator-supplied baseline body. Each field not already a key
+  in 'body' gets exactly one extra write with that field injected at an
+  escalated value, hard-capped at 8 fields/requests per call. This is a
+  REAL write against live state, not a dry run -- prefer confirming the
+  endpoint's normal baseline request/response shape with http_request
+  first. A field is reported "confirmed accepted" only if the response
+  echoes it back with the injected value; a 2xx response that doesn't
+  echo the object is reported "accepted but unconfirmed" and needs a
+  follow-up read to verify persistence.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Endpoint URL to send the write to, e.g. 'https://api.example.com/users/42'."
+    body:
+      type: string
+      description: >
+        Baseline JSON request body as a string, representing a normal,
+        legitimate request to this endpoint (e.g. '{"name":"Alice","email":"a@example.com"}').
+    method:
+      type: string
+      description: "HTTP method to use: POST, PUT, or PATCH. Defaults to POST."
+    candidate_fields:
+      type: string
+      description: >
+        Optional comma-separated list of field names to try injecting.
+        Defaults to a built-in list: role,isAdmin,is_admin,admin,privilege,
+        plan,price,balance,verified,is_staff. Hard-capped at 8 fields per call.
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP headers separated by newlines (e.g.
+        'Authorization: Bearer token\nCookie: session=xyz').
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target", "body"]

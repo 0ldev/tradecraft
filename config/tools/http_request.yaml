@@ -1,0 +1,33 @@
+tool_id: http_request
+required_binary: curl
+scope_param: url
+description: "Sends a targeted HTTP/HTTPS request (GET, HEAD, OPTIONS, or POST) to a URL with custom headers, data payload, and redirect settings for precision endpoint probing and PoC verification. Only these non-mutating methods are permitted (POST included, since login/search/form-probing POSTs are routine non-destructive testing) -- PUT, DELETE, and PATCH are rejected with an error pointing to the destructive http_write_request tool (requires --allow-destructive), which performs those instead."
+parameters:
+  type: object
+  properties:
+    url:
+      type: string
+      description: "Target URL to send the HTTP request to (e.g. 'https://example.com/api/v1/user' or 'http://target.local:8080/test'), or a comma-separated list of URLs to send the same method/headers/data to each in one call (e.g. confirming the same response pattern across several known hosts) instead of calling this tool once per URL."
+    method:
+      type: string
+      description: "HTTP method to use: 'GET' (default), 'HEAD', 'OPTIONS', or 'POST'. 'PUT', 'DELETE', and 'PATCH' are rejected -- use http_write_request for those."
+    headers:
+      type: string
+      description: "Optional custom HTTP request headers, separated by newlines (e.g. 'Authorization: Bearer token\\nContent-Type: application/json')."
+    data:
+      type: string
+      description: "Optional request body data for a POST request."
+    follow_redirects:
+      type: boolean
+      description: "Whether to follow HTTP 3xx redirects (default: false)."
+    timeout:
+      type: integer
+      description: "Request timeout in seconds (default: 10)."
+    body_offset:
+      type: integer
+      description: "Character offset into the response body where the returned body preview starts (default: 0). For a single URL whose body was truncated, pass the next_body_offset value from that response to read the next chunk. Prefer this over a Range header, which many servers ignore. Ignored when more than one URL is given."
+    body_chars:
+      type: integer
+      description: "Maximum number of body characters to return in this response (default: 2000, maximum: 8000). Ignored when more than one URL is given."
+  required:
+    - url

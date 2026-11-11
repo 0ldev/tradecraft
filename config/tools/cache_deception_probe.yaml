@@ -1,0 +1,48 @@
+tool_id: cache_deception_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests for web cache deception, distinct from the existing
+  cache_poison_probe (which targets unkeyed-header poisoning): fetches a
+  crafted, static-asset-looking URL built by appending a suffix like
+  '/nonexistent.css' to an authenticated page's path, sending an
+  operator-supplied auth header/cookie, then re-fetches the exact same
+  crafted URL with NO auth. If the unauthenticated response still
+  contains the success_marker string that only appears in the
+  authenticated version, the cache stored and is now serving that user's
+  private page to anyone who requests the same crafted URL -- confirmed
+  cache deception, an account-takeover-shaped data leak. Non-destructive
+  (destructive: false): makes GET requests only, mirroring
+  cache_poison_probe's own classification; never mutates target state.
+  Tries 5 built-in suffix variants (path-appended, path-parameter-style,
+  single and double URL-encoded) and reports all results, not just the
+  first hit.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL of the authenticated page to test, e.g.
+        'https://example.com/account/settings'. A bare host+path is
+        treated as https.
+    success_marker:
+      type: string
+      description: >
+        A substring that appears ONLY in the authenticated version of
+        the page's response body (e.g. the user's own email address, an
+        account ID, or a unique page title) -- used to confirm whether
+        the private content leaked into the unauthenticated response.
+    auth_headers:
+      type: string
+      description: >
+        Operator-supplied authentication headers for the FIRST request
+        only (never sent on the verification request), separated by
+        newlines, e.g. 'Cookie: session=xyz' or
+        'Authorization: Bearer token'.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10."
+  required: ["target", "success_marker", "auth_headers"]

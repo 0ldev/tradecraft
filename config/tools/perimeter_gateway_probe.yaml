@@ -1,0 +1,47 @@
+tool_id: perimeter_gateway_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes enterprise perimeter devices, firewalls, and SSL-VPN gateways for
+  critical known exploited vulnerabilities. Tests Check Point Quantum Security
+  Gateway for unauthenticated path traversal and sensitive file disclosure
+  (CVE-2024-24919), Palo Alto PAN-OS GlobalProtect for portal exposure and
+  telemetry command injection indicators (CVE-2024-3400), Ivanti Connect Secure
+  for API authentication bypass (CVE-2023-46805 & CVE-2024-21887), and Citrix
+  NetScaler ADC for memory disclosure and CitrixBleed indicators (CVE-2023-4966).
+  Also fingerprints Fortinet FortiGate SSL-VPN portals (CVE-2022-42475,
+  CVE-2023-27997, CVE-2024-21762) but, unlike the other four, never actively
+  tests those CVEs: they are pre-auth memory-corruption bugs in the SSL-VPN
+  daemon, and a crafted trigger risks crashing it without adding evidence
+  beyond the fingerprint itself. A Fortinet result reports confirmed exposure
+  needing manual firmware-version verification, not a tested-safe/vulnerable
+  verdict. Safe read-only probe; does not create accounts, alter
+  configurations, or execute arbitrary shell commands.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP, hostname, or full URL of the perimeter gateway (e.g.,
+        'vpn.example.com', '192.168.1.1', or 'https://gateway.example.com:8443').
+    appliance:
+      type: string
+      enum:
+        - all
+        - checkpoint
+        - paloalto
+        - ivanti
+        - citrix
+        - fortinet
+      description: >
+        Specific appliance family to test, or 'all' to probe all candidate
+        perimeter devices (default: 'all').
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target

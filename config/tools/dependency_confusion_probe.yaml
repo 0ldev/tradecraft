@@ -1,0 +1,30 @@
+tool_id: dependency_confusion_probe
+destructive: false
+
+description: >
+  Checks whether internal package names (discovered from a leaked
+  package.json/requirements.txt/pom.xml, or supplied directly) are
+  unclaimed on the public npm, PyPI, or Maven Central registry -- an
+  unclaimed name is squattable, letting an attacker publish a malicious
+  package under that name that a misconfigured internal build pulls
+  instead of the private one (dependency confusion). Sends GET-only
+  requests to the public registries themselves (registry.npmjs.org,
+  pypi.org, search.maven.org) -- never touches the client's own
+  infrastructure, so there is no network target to scope-check here.
+  A 404/no-result means unclaimed (flag it); a 200/found result means
+  the name is already claimed and not vulnerable this way.
+
+parameters:
+  type: object
+  properties:
+    packages:
+      type: string
+      description: >
+        Comma-separated internal package names to check, each
+        optionally suffixed ':ecosystem' (npm, pypi, or maven; defaults
+        to npm if omitted), e.g. 'acme-internal-utils:npm,acme_utils:pypi,
+        com.acme:internal-lib:maven'. Hard-capped at 20 names per call.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["packages"]

@@ -1,0 +1,30 @@
+tool_id: form_fuzzer
+scope_param: target
+destructive: false
+
+description: >
+  Fuzzes web forms and interactive input parameters on the target endpoint for Server-Side
+  Request Forgery (SSRF) targeting cloud metadata services (AWS/Azure/GCP IMDS), SQL injection,
+  and differential SSTI. Confirmation-only read probe (destructive: false).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL containing HTML forms or query parameters to fuzz,
+        e.g. 'https://exampleauto.com.br/fetch' or 'https://examplepaint.com.br/contact.php'.
+    internal_url:
+      type: string
+      description: >
+        Optional internal or cloud metadata URL to probe for SSRF. Defaults to
+        'http://169.254.169.254/latest/meta-data/'. Can also target Azure IMDS
+        ('http://169.254.169.254/metadata/instance?api-version=2021-02-01') or
+        GCP ('http://metadata.google.internal/computeMetadata/v1/').
+    target_param:
+      type: string
+      description: >
+        Optional specific parameter name to test. If omitted, all visible input fields in
+        discovered forms and target query parameters are tested.
+  required: ["target"]

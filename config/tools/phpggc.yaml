@@ -1,0 +1,51 @@
+tool_id: phpggc
+required_binary: php
+scope_param: target
+destructive: true
+destructive_categories:
+  - code_execution
+
+description: >
+  Generates a PHP object-injection gadget chain with phpggc and submits it to a
+  suspected unserialize() sink -- one parameter or cookie -- to confirm remote
+  command execution. The chain runs the fixed command 'id'; a result is reported
+  as vulnerable only when the real 'uid=... gid=...' output comes back in the
+  HTTP response, never on a bare 200 or echoed input. Exactly one chain and one
+  HTTP request per call, no retries, redirects not followed. Classified as
+  destructive: true (it delivers a working RCE payload); available only when
+  --allow-destructive is specified.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL of the endpoint whose PHP code unserializes untrusted input,
+        e.g. 'https://example.com/profile?data=abc'. Redirects are not followed,
+        so pass the final URL (e.g. the https URL, not an http one that
+        redirects).
+    parameter:
+      type: string
+      description: >
+        Name of the query/form parameter or cookie that carries the serialized
+        value into unserialize(), e.g. 'data', 'payload', or 'PHPSESSID'.
+    method:
+      type: string
+      description: >
+        How to deliver the payload: 'GET' (query parameter), 'POST'
+        (form-encoded body), or 'COOKIE' (cookie value). Defaults to GET.
+    framework:
+      type: string
+      description: >
+        Target framework or PHP library used to pick a gadget chain: 'laravel'
+        (Laravel/RCE1), 'symfony' (Symfony/RCE4), 'monolog' (Monolog/RCE1), or
+        'guzzle' (Guzzle/RCE1). Alternatively an exact phpggc chain name such as
+        'Laravel/RCE22'. Defaults to Laravel/RCE1 when omitted.
+    cookie:
+      type: string
+      description: >
+        Optional Cookie header value for an existing authenticated session,
+        e.g. 'session=abc123'. When method is COOKIE, the generated payload is
+        appended to this header rather than replacing it.
+  required: ["target", "parameter"]

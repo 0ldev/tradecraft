@@ -1,0 +1,15 @@
+tool_id: subfinder
+required_binary: subfinder
+scope_param: target
+
+description: >
+  Discover subdomain names for a root domain using Subfinder's passive
+  sources. Returns deduplicated names, not verified DNS records or live hosts.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: Root domain to enumerate, e.g. 'example.com', without a URL or port.
+  required: ["target"]

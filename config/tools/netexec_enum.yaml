@@ -1,0 +1,89 @@
+tool_id: netexec_enum
+required_binary: netexec
+scope_param: target
+destructive: false
+
+description: >
+  Read-only network service and Active Directory enumeration via NetExec
+  (the 'netexec'/'nxc' binary): SMB banner/signing/SMBv1/null-session
+  details, shares, local or domain users, groups, password and lockout
+  policy, disks, and logged-on users. Runs exactly one authentication
+  attempt per target with the single credential pair supplied -- it never
+  sprays or brute-forces. Bounded to 16 threads and refuses a CIDR range
+  broader than /24. A call that reaches no host returns status
+  'no_response' (NetExec silently skips unreachable hosts); that is not an
+  execution error. Protocol-specific flags: shares/disks/loggedon_users
+  apply to 'smb'; groups applies to 'ldap' (NetExec 1.5.x rejects
+  --groups on smb); users and pass_pol apply to both smb and ldap.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP address, hostname, or CIDR range of /24 or narrower,
+        e.g. '10.0.0.1' or '10.0.0.0/24'.
+    protocol:
+      type: string
+      description: >
+        Protocol to enumerate: 'smb', 'ldap', 'winrm', 'mssql', 'rdp',
+        'ssh', 'ftp', or 'wmi' (default: 'smb').
+    domain:
+      type: string
+      description: >
+        Active Directory domain name to authenticate to, e.g.
+        'corp.local'. Omit for local or anonymous authentication.
+    username:
+      type: string
+      description: >
+        Username for a single authentication attempt. Omit to use a null
+        (anonymous) session.
+    password:
+      type: string
+      description: >
+        Plaintext password for the single authentication attempt.
+        Mutually exclusive with hashes.
+    hashes:
+      type: string
+      description: >
+        NTLM hash for pass-the-hash ('LM:NTLM' or 'NTLM'), used instead
+        of password. Mutually exclusive with password.
+    shares:
+      type: boolean
+      description: >
+        Enumerate SMB shares and permissions (--shares). Requires a
+        successful SMB session; smb protocol only (default: false).
+    users:
+      type: boolean
+      description: >
+        Enumerate local users (smb) or domain users (ldap)
+        (--users) (default: false).
+    groups:
+      type: boolean
+      description: >
+        Enumerate domain groups (--groups). ldap protocol only -- NetExec
+        1.5.x rejects --groups on smb (default: false).
+    pass_pol:
+      type: boolean
+      description: >
+        Dump the password and account-lockout policy (--pass-pol)
+        (default: false).
+    disks:
+      type: boolean
+      description: >
+        Enumerate available disks/drives (--disks). smb protocol only
+        (default: false).
+    loggedon_users:
+      type: boolean
+      description: >
+        Enumerate users currently logged on to the host
+        (--loggedon-users). smb protocol only (default: false).
+    ccache_b64:
+      type: string
+      description: >
+        Optional base64-encoded Kerberos ccache (e.g. ticketer's forged
+        ticket) to authenticate with instead of password/hashes.
+        Materialized into a disposable KRB5CCNAME file for this one call
+        only and passed with NetExec's --use-kcache flag.
+  required: ["target"]

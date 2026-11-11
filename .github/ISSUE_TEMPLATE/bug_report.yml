@@ -1,0 +1,52 @@
+name: Bug report
+description: Something doesn't work the way the docs/code say it should.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected instead, and what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Exact command(s) run, including flags (`--profile`, `--tools`, etc.).
+      placeholder: |
+        tradecraft 10.0.0.5 --profile web
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output / traceback
+      description: Paste the error, traceback, or the relevant slice of the engagement log. This will be rendered as a code block.
+      render: shell
+  - type: input
+    id: tool
+    attributes:
+      label: Affected tool/adapter (if applicable)
+      placeholder: e.g. nmap_scan, ffuf
+  - type: input
+    id: model
+    attributes:
+      label: Model in use
+      placeholder: e.g. openai/qwen3.8-27b via litellm
+  - type: input
+    id: version
+    attributes:
+      label: Tradecraft version / commit
+      placeholder: output of `git rev-parse HEAD`, or the Docker image tag
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this hasn't been reported already.
+          required: true
+        - label: I ran against a target I own or have explicit permission to test.
+          required: true

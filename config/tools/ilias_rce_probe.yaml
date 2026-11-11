@@ -1,0 +1,30 @@
+tool_id: ilias_rce_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes ILIAS e-Learning platforms for critical unauthenticated PHP Object
+  Injection Remote Code Execution (CVE-2026-80428). Tests the Shibboleth
+  back-channel logout handler (/shib_logout.php) and LTI session injection entry
+  point (/ltiauth.php). Sends a safe SOAP LogoutNotification probe to verify
+  whether the unauthenticated session deserialization vector is active without
+  executing arbitrary commands or writing files to disk.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP, hostname, or base URL of the ILIAS platform (e.g.,
+        'lms.example.com' or 'https://elearning.corp.com').
+    host_header:
+      type: string
+      description: >
+        Optional custom HTTP Host header if required for virtual host routing.
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target

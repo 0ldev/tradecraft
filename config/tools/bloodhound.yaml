@@ -1,0 +1,62 @@
+tool_id: bloodhound
+required_binary: bloodhound-python
+scope_param: target
+destructive: false
+
+description: >
+  Active Directory attack path and domain relation collection using BloodHound ingestor (users,
+  groups, computers, domains, OUs, and ACLs) for graph analysis. Read-only enumeration probe
+  (destructive: false).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target Domain Controller (DC) IP or hostname, e.g. '10.0.0.1' or 'dc01.corp.local'.
+    domain:
+      type: string
+      description: >
+        Target Active Directory domain name, e.g. 'corp.local' or 'contoso.com'.
+    username:
+      type: string
+      description: >
+        Optional Active Directory username to authenticate with. Required
+        (non-empty) when ccache_b64 is set -- bloodhound-python's
+        Kerberos ccache authentication does not infer the identity from
+        the ccache itself.
+    password:
+      type: string
+      description: >
+        Optional plaintext password for the Active Directory user.
+    hashes:
+      type: string
+      description: >
+        Optional NTLM hash string ('LM:NTLM') for pass-the-hash authentication.
+    collection_method:
+      type: string
+      description: >
+        BloodHound collection method, e.g. 'DCOnly', 'Default', 'Group', 'LocalAdmin', 'Session',
+        'Trusts', 'ACL', or 'All'. Defaults to 'DCOnly' to avoid noisy multi-workstation sweeps.
+    nameserver:
+      type: string
+      description: >
+        Optional alternative nameserver / DNS server IP (defaults to the target DC).
+    use_ldaps:
+      type: boolean
+      description: >
+        Use LDAP over TLS on port 636 instead of plain LDAP on port 389 (default: false).
+    kerberos:
+      type: boolean
+      description: >
+        Use Kerberos authentication (-k flag) instead of NTLM (default: false).
+        Required (set to true) for ccache_b64 to take effect.
+    ccache_b64:
+      type: string
+      description: >
+        Optional base64-encoded Kerberos ccache (e.g. ticketer's forged
+        ticket) to authenticate with instead of password/hashes. Only
+        takes effect when kerberos is true; materialized into a
+        disposable KRB5CCNAME file for this one call only.
+  required: ["target", "domain"]

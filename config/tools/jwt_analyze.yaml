@@ -1,0 +1,28 @@
+tool_id: jwt_analyze
+scope_param: target
+
+description: >
+  Test a known JWT for the classic "alg=none" signature-bypass
+  vulnerability: decode the token, forge a new one with alg set to
+  "none" and an empty signature, apply a basic privilege-escalation
+  heuristic to its claims (role/admin/user fields), then send a
+  before/after differential request to target with and without the
+  forged token. Reports a real vulnerability only if the unauthenticated
+  baseline was rejected (401/403) and the forged token was accepted
+  (200). Requires a real JWT you already have -- this tool does not
+  discover or steal tokens itself.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL to send the differential baseline/forged-token test against,
+        e.g. 'https://api.example.com/account'.
+    token:
+      type: string
+      description: >
+        The existing JWT (three base64url segments separated by '.') to
+        decode and forge from.
+  required: ["target", "token"]

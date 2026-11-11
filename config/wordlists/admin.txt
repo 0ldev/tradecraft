@@ -1,0 +1,17 @@
+admin
+administrator
+administration
+manage
+manager
+dashboard
+console
+cpanel
+phpmyadmin
+panel
+portal
+root
+control
+login
+webadmin
+pma
+backend

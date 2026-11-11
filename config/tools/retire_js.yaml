@@ -1,0 +1,18 @@
+tool_id: retire_js
+required_binary: retire
+scope_param: target
+
+description: >
+  Fetch a URL, download every JavaScript file it references, and check
+  them against the retire.js known-vulnerability database for outdated/
+  CVE-tagged library versions (jQuery, Bootstrap, Angular, etc.). Fetches
+  the page and its scripts itself -- no prerequisite tool call needed.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL to fetch and scan, e.g. 'https://examplepaint.com.br'.
+  required: ["target"]

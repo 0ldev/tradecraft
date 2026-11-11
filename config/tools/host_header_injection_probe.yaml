@@ -1,0 +1,42 @@
+tool_id: host_header_injection_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests whether an application trusts a client-supplied Host-like header
+  when building absolute URLs it returns to the client -- the root cause
+  of password-reset-link poisoning and similar host-header-driven
+  account-takeover bugs. Distinct from cache_poison_probe (which targets
+  a front-end cache's cache key, not application logic, and requires a
+  cache in front of the origin): this tool works against any endpoint,
+  cached or not. Sends one request per candidate header (default:
+  Host, X-Forwarded-Host, X-Forwarded-Server, X-Host), each carrying a
+  unique marker domain, and checks whether that marker is reflected back
+  inside an absolute-URL-shaped context (a Location redirect, a link, a
+  canonical tag) rather than as incidental plain text. Purely
+  observational -- never sends or assumes an email was sent, and makes
+  no claim about what happens downstream of the reflected link.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL to test, ideally a password-reset-request or similar
+        link-generating endpoint, e.g. 'https://example.com/forgot-password'.
+    method:
+      type: string
+      description: "HTTP method to use. Defaults to GET."
+    body:
+      type: string
+      description: "Optional request body to send with non-GET methods."
+    headers_to_test:
+      type: string
+      description: >
+        Optional comma-separated list of header names to test. Defaults
+        to 'Host,X-Forwarded-Host,X-Forwarded-Server,X-Host'.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

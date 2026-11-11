@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose a change that isn't a new tool/adapter (see "New tool proposal" for those).
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve
+      description: What you're trying to do today that's awkward, impossible, or requires a workaround.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I checked CONTRIBUTING.md and docs/ — this isn't already covered.
+          required: true
+        - label: I searched existing issues and this hasn't been proposed already.
+          required: true

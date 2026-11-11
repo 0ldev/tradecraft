@@ -1,0 +1,28 @@
+tool_id: subdomain_permute
+scope_param: target
+destructive: false
+
+description: >
+  Generates subdomain name candidates for an apex domain by combining a
+  built-in ~80-word list of common environment/service keywords (dev,
+  staging, api, admin, internal, vpn, etc.) with a fixed set of
+  separator patterns (prefix, prefix-, prefix., numbered 1-3 suffix).
+  Makes zero network calls itself -- feed the returned candidates into
+  dnsx or httpx_probe to find which actually resolve/respond. Optionally
+  seeds additional keywords from already-known subdomain names (e.g.
+  subfinder's own output) by extracting their first label.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: Apex domain, e.g. 'example.com'.
+    seed_subdomains:
+      type: string
+      description: >
+        Optional comma-separated list of already-known subdomains
+        (e.g. from subfinder) to extract extra keywords from -- each
+        one's first label (e.g. 'api' from 'api.example.com') is added
+        to the built-in keyword list before permutation.
+  required: ["target"]

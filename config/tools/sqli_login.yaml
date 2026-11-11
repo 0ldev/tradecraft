@@ -1,0 +1,32 @@
+tool_id: sqli_login
+scope_param: target
+destructive: true
+destructive_categories:
+  - credential_or_secret_exposure
+
+description: >
+  Attempts SQL injection authentication bypass on login forms using tautology payloads
+  against username/email parameters. Classified as destructive: true; available only
+  when --allow-destructive is specified.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL of the login endpoint or base host, e.g. 'https://target.com/login' or 'https://target.com'.
+    username_field:
+      type: string
+      description: >
+        Optional specific username/email input parameter name to target (e.g. 'username', 'email', 'login').
+        If omitted, common field names are probed automatically.
+    password_field:
+      type: string
+      description: >
+        Optional specific password input parameter name (default: 'password').
+    login_path:
+      type: string
+      description: >
+        Optional login endpoint path if target is a base host (e.g. '/admin/login', '/user/login').
+  required: ["target"]

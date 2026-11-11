@@ -1,0 +1,49 @@
+name: New tool/adapter proposal
+description: Propose adding a new tool (see CONTRIBUTING.md's "Adding a tool" for the five-piece shape this implies).
+labels: ["new-tool"]
+body:
+  - type: input
+    id: tool
+    attributes:
+      label: Tool/binary name
+      placeholder: e.g. a new fuzzer, scanner, or exploitation tool
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What it does and what gap it fills
+      description: What it finds that no currently-registered tool already covers, and which profile(s) it'd belong in (see docs/profiles.md).
+    validations:
+      required: true
+  - type: dropdown
+    id: destructive
+    attributes:
+      label: Is it destructive?
+      description: See docs/policy.md's blast-radius categories.
+      options:
+        - "No"
+        - "Yes — state_mutation"
+        - "Yes — account_lockout_risk"
+        - "Yes — code_execution"
+        - "Yes — credential_or_secret_exposure"
+        - "Yes — persistent_artifact"
+        - "Yes — availability_risk"
+        - "Yes — multiple categories"
+        - "Not sure"
+    validations:
+      required: true
+  - type: textarea
+    id: blast-radius
+    attributes:
+      label: If destructive, how is the worst case bounded
+      description: Bounded attempts, wordlist size, output size, runtime, etc. — the adapter has to hard-cap this itself regardless of the destructive flag.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I checked this isn't already covered by an existing registered tool.
+          required: true
+        - label: I'm willing to open the PR myself (optional — proposals without an implementer are still welcome).
+          required: false

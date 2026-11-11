@@ -1,0 +1,33 @@
+tool_id: anon_service_probe
+scope_param: target
+
+description: >
+  Performs single-attempt, non-destructive verification of unauthenticated
+  access or anonymous misconfigurations on exposed administrative and database
+  services (FTP anonymous login on port 21, and MySQL/MariaDB unauthenticated
+  or empty root password on port 3306). Does not perform password brute-forcing
+  or credential dictionary attacks.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP address or hostname exposing the service (e.g. '203.0.113.41'
+        or 'subdomain.example.com').
+    service:
+      type: string
+      description: >
+        Service protocol to test: 'ftp', 'mysql', or 'auto' (default 'auto',
+        which tests both services or infers from the port).
+    port:
+      type: integer
+      description: >
+        Optional custom port number (defaults to 21 for FTP and 3306 for MySQL).
+    timeout:
+      type: integer
+      description: >
+        Connection and probe timeout in seconds (default 5, clamped between 1
+        and 10 seconds).
+  required: ["target"]

@@ -1,0 +1,20 @@
+tool_id: shodan_internetdb
+scope_param: ip
+
+description: >
+  Passive lookup of what Shodan has already observed about an IP
+  address: open ports, hostnames, CPEs, and known CVEs, via Shodan's
+  free, unauthenticated InternetDB API. Sends nothing to the target
+  itself -- only queries Shodan's own third-party database. An
+  empty/404 result means Shodan has no recent data for this IP, not
+  that nothing is exposed there.
+
+parameters:
+  type: object
+  properties:
+    ip:
+      type: string
+      description: >
+        One IP address, or a comma-separated list, e.g. '104.26.8.9' or
+        '104.26.8.9,172.67.68.58'.
+  required: ["ip"]

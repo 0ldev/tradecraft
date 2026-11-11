@@ -1,0 +1,4 @@
+from tradecraft.dataset.cli import dataset_main
+
+if __name__ == "__main__":
+    dataset_main()

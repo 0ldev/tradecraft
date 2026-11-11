@@ -1,0 +1,22 @@
+tool_id: cero
+required_binary: cero
+scope_param: target
+
+description: >
+  Discover subdomains by querying public Certificate Transparency logs
+  for certificates ever issued to the target domain. Finds a different
+  set of names than subfinder (DNS/passive-source aggregation) --
+  catches short-lived, decommissioned, or otherwise undocumented
+  subdomains that only ever had a certificate issued, never a current
+  DNS record anyone would brute-force-guess. Purely passive -- never
+  sends a request to the target itself.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Apex domain to query Certificate Transparency logs for, e.g.
+        'example.com'.
+  required: ["target"]

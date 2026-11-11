@@ -1,0 +1,52 @@
+tool_id: price_manipulation_probe
+scope_param: target
+destructive: true
+destructive_categories:
+  - state_mutation
+
+description: >
+  Tests for price/quantity tampering on a cart/checkout/order endpoint
+  by sending a real write request per relevant tamper variant: negative
+  quantity (-1) and quantity overflow (999999999) if quantity_param is
+  given, zero price (0) and negative price (-1) if price_param is
+  given. Hard-capped at 4 total write attempts, only generating variants
+  relevant to whichever param(s) were supplied. This is a REAL write
+  against live state, not a dry run -- confirm a normal checkout with
+  the unmodified baseline body actually succeeds first (e.g. via
+  http_request) before spending the gated tamper attempts here, so a
+  "vulnerable" finding isn't just a broken endpoint. A variant is
+  reported "confirmed accepted" only if the response echoes it back
+  with the tampered value; a 2xx response that doesn't echo it is
+  reported "accepted but unconfirmed" and needs a follow-up read to
+  verify persistence.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Cart/checkout/order endpoint URL to send the write to, e.g. 'https://shop.example.com/api/cart/42'."
+    body:
+      type: string
+      description: >
+        Baseline JSON request body as a string, representing a normal,
+        legitimate request to this endpoint (e.g.
+        '{"item_id":"sku-1","quantity":1,"price":19.99}').
+    method:
+      type: string
+      description: "HTTP method to use: POST, PUT, or PATCH. Defaults to POST."
+    price_param:
+      type: string
+      description: "Name of the price field to tamper (e.g. 'price'). At least one of price_param/quantity_param is required."
+    quantity_param:
+      type: string
+      description: "Name of the quantity field to tamper (e.g. 'quantity'). At least one of price_param/quantity_param is required."
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP headers separated by newlines (e.g.
+        'Authorization: Bearer token\nCookie: session=xyz').
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target", "body"]

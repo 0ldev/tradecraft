@@ -1,0 +1,26 @@
+tool_id: cmseek
+required_binary: python3
+scope_param: target
+destructive: false
+
+description: >
+  Detects and fingerprints over 180 Content Management Systems (WordPress, Joomla, Drupal, Magento, etc.)
+  and extracts installed versions, plugins, themes, user accounts, and configuration exposures.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: Target website URL or hostname (e.g. 'https://example.com' or 'blog.example.com').
+    follow_redirect:
+      type: boolean
+      description: Follow all HTTP/HTTPS redirects to reach the final CMS destination. Defaults to true.
+    light_scan:
+      type: boolean
+      description: Perform CMS and version detection only, skipping deep scans for plugins and users. Defaults to false.
+    only_cms:
+      type: boolean
+      description: Only detect CMS type, skipping version detection and deep scan. Defaults to false.
+  required:
+    - target

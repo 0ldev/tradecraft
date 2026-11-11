@@ -1,0 +1,52 @@
+tool_id: email_header_injection_probe
+scope_param: target
+destructive: true
+destructive_categories:
+  - state_mutation
+
+description: >
+  Tests a contact-form (or similar mail()-backed) submission endpoint
+  for CRLF-based email header injection by sending exactly 2 real write
+  attempts: (a) the literal CRLF sequence '\r\nBcc: <marker>' appended
+  to field_to_inject's value, (b) the URL-encoded variant
+  '%0d%0aBcc:<marker>' (for apps that decode before validating). This
+  is a REAL submission with a real side effect on the target (a ticket
+  logged, an email sent) -- confirm the endpoint's normal baseline
+  submission actually succeeds first before spending the gated
+  attempts. Reports only whether the injected header was accepted
+  without rejection, not whether the Bcc actually delivered -- confirming
+  delivery requires the operator to separately check the marker mailbox
+  (e.g. with mail_access_probe, if they control it).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Contact-form submission URL, e.g. 'https://example.com/contact/submit'."
+    body:
+      type: string
+      description: >
+        Baseline JSON form-field body as a string, representing a
+        normal, legitimate submission (e.g.
+        '{"name":"Alice","email":"a@example.com","message":"hi"}').
+    field_to_inject:
+      type: string
+      description: "Name of the field whose value gets the CRLF injection appended (e.g. 'name' or 'email')."
+    method:
+      type: string
+      description: "HTTP method to use: POST, PUT, or PATCH. Defaults to POST."
+    bcc_marker:
+      type: string
+      description: >
+        Optional marker email address to inject as the Bcc target.
+        Defaults to 'tradecraft-probe-marker@tradecraft-probe.test'.
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP headers separated by newlines (e.g.
+        'Cookie: session=xyz').
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target", "body", "field_to_inject"]

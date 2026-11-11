@@ -1,0 +1,57 @@
+tool_id: pod_exec_enum
+required_binary: kubectl
+scope_param: server
+destructive: false
+
+description: >
+  Container-isolation misconfiguration and privilege-escalation
+  enumeration from inside a Kubernetes pod already reached via some
+  other foothold (for example an RCE in a web application container),
+  run through `kubectl exec` with a bearer token. Executes exactly one
+  fixed, bounded, read-only shell script inside the container, once per
+  call, and reports four indicators: (1) the mounted service-account
+  token at /var/run/secrets/kubernetes.io/serviceaccount -- whether it
+  is present and readable, its size, its full content if present, and
+  the namespace the pod believes it is in; (2) whether
+  /var/run/docker.sock exists and is writable by the container user; (3)
+  the effective Linux capability set (CapEff from /proc/self/status),
+  decoded into capability names; (4) on cgroup v1 (v2's unified
+  hierarchy has no per-controller release_agent file), whether the
+  release_agent file of a fixed, bounded list of cgroup controllers
+  (memory, pids) is writable -- the classic cgroup v1 container-escape
+  primitive. Only checks writability, never writes to it. Performs no
+  writes and changes nothing inside the container. A failed exec (pod or
+  container not found,
+  forbidden, no `sh` in the image) is reported as a failed status, not
+  a clean empty result. Belongs to profiles 'kubernetes' and
+  'post-exploitation'.
+
+parameters:
+  type: object
+  properties:
+    server:
+      type: string
+      description: >
+        Kubernetes API server endpoint, e.g. '10.0.0.1:6443' or
+        'k8s.target.local:6443'.
+    token:
+      type: string
+      description: >
+        Bearer token authorized to exec into the pod (pods/exec RBAC),
+        e.g. a service account JWT.
+    namespace:
+      type: string
+      description: >
+        Namespace the target pod runs in, e.g. 'default'. Must be a valid
+        DNS label.
+    pod:
+      type: string
+      description: >
+        Exact name of the running pod to exec into, e.g. 'web-6d4f9b7c8-x2k9p'.
+    container:
+      type: string
+      description: >
+        Container name within the pod. Only needed when the pod has more
+        than one container; omit it for single-container pods. Must be a
+        valid DNS label when given.
+  required: ["server", "token", "namespace", "pod"]

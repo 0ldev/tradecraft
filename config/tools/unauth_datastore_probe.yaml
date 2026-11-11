@@ -1,0 +1,73 @@
+tool_id: unauth_datastore_probe
+scope_param: target
+destructive: false
+
+description: >
+  Performs single-attempt, non-destructive verification of unauthenticated
+  access across ten well-known services -- extends the same pattern
+  anon_service_probe already uses for FTP and MySQL. Every check is one
+  anonymous read: Redis and Memcached each send one plaintext command
+  (neither protocol has a partial-auth state, so one successful command
+  proves full unauthenticated access, including Redis's CONFIG SET/module-
+  loading RCE primitives and Memcached's get/set/flush_all -- this tool
+  does not attempt those, only confirms the command succeeds). MongoDB is
+  wire-protocol-based: one OP_MSG 'hello' command fingerprints the server
+  (answered before authentication by design), then one OP_MSG
+  'listDatabases' admin command -- succeeding (ok: 1) with no credentials
+  is the vulnerability signal, and it hands over every database name on
+  the server. The other seven (Elasticsearch, HashiCorp Vault, Consul,
+  Prometheus, Grafana, Kibana, CouchDB) are HTTP-based: one GET
+  fingerprints the service, then one GET to an endpoint that normally
+  requires a credential -- a 200 there instead of the expected 401/403 is
+  the vulnerability signal (Elasticsearch's /_cat/indices, Vault's
+  /v1/sys/mounts, Consul's /v1/kv/?recurse=true, Prometheus's
+  /api/v1/targets, Grafana's /api/datasources, Kibana's
+  /api/saved_objects/_find, CouchDB's /_all_dbs). Does not perform
+  credential brute-forcing or write any data.
+
+  For MongoDB and Elasticsearch specifically, a confirmed vulnerability
+  is completed one step further with a bounded, best-effort real-data
+  sample: up to 3 documents from the first non-system database's first
+  collection (MongoDB, via one listCollections + one find, both using
+  the same already-proven unauthenticated connection) or from the first
+  index (Elasticsearch, via one _search?size=3). This never changes the
+  vulnerable/status verdict, which listDatabases/_cat/indices alone
+  already fully proves -- a sampling failure (no collections, denied,
+  no indices) is reported separately and does not downgrade the
+  finding. The model-facing result carries only a sample document
+  count; the actual sampled content is persisted as evidence, not
+  returned inline every turn.
+
+  'auto' (the default 'service' value) keeps its original, narrower scope:
+  Redis + Elasticsearch only, on their standard ports. The other eight
+  services are reached by naming them explicitly in 'service' -- they are
+  deliberately not folded into 'auto', so this tool's cheapest, most
+  common call shape doesn't silently grow from two checks to ten.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Target host or IP, e.g. '192.168.1.50' or 'db.example.com'."
+    service:
+      type: string
+      description: >
+        'redis', 'elasticsearch', 'vault', 'consul', 'prometheus',
+        'grafana', 'kibana', 'couchdb', 'memcached', 'mongodb', or 'auto'
+        (default: checks only Redis and Elasticsearch, on ports 6379 and
+        9200 -- the other eight services must be named explicitly).
+        'auto' with an explicit 'port' that matches one of the services'
+        standard ports (8200/8500/9090/3000/5601/5984/11211/27017) probes
+        that service specifically instead.
+    port:
+      type: integer
+      description: >
+        Optional non-standard port to check instead of the named
+        service's default (6379 Redis, 9200 Elasticsearch, 8200 Vault,
+        8500 Consul, 9090 Prometheus, 3000 Grafana, 5601 Kibana, 5984
+        CouchDB, 11211 Memcached, 27017 MongoDB).
+    timeout:
+      type: integer
+      description: "Per-probe timeout in seconds. Defaults to 5, capped at 10."
+  required: ["target"]

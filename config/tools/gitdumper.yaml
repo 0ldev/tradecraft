@@ -1,0 +1,18 @@
+tool_id: gitdumper
+required_binary: git-dumper
+scope_param: target
+description: "Dumps and extracts exposed .git repositories from target web endpoints, recovering source code, configuration files, and commit histories."
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Target URL or endpoint to test for exposed .git directory (e.g. 'https://example.com' or 'https://example.com/app')."
+    jobs:
+      type: integer
+      description: "Number of simultaneous download requests (default: 5)."
+    retry:
+      type: integer
+      description: "Number of request attempts before giving up (default: 2)."
+  required:
+    - target

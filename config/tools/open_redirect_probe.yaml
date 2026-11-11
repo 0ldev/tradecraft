@@ -1,0 +1,34 @@
+tool_id: open_redirect_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests URL query parameters for open-redirect behavior. Identifies
+  candidate parameters by name (a built-in list of common redirect
+  parameter names, e.g. 'redirect', 'next', 'return_url') or tests an
+  explicit parameter if given. Injects 10 payloads per candidate
+  pointing at a non-resolving canary host
+  ('tradecraft-oob-canary.invalid') and inspects only the response's
+  Location header (redirects are never followed). A parameter is
+  reported vulnerable only when the Location header's host resolves to
+  the canary host via urllib.parse, not via a loose substring match.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL with query parameters to test, e.g.
+        'https://example.com/login?next=/dashboard'.
+    param:
+      type: string
+      description: >
+        Optional specific query parameter name to test. If omitted,
+        every query parameter whose name matches the built-in
+        redirect-parameter-name list is tested; if none match, every
+        query parameter present is tested.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

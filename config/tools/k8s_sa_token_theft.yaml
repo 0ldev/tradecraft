@@ -1,0 +1,46 @@
+tool_id: k8s_sa_token_theft
+scope_param: target
+destructive: false
+
+description: >
+  Extracts Kubernetes service account tokens and namespace metadata from the
+  local container filesystem via file:// URI scheme injection in an SSRF sink.
+  Attempts to read /var/run/secrets/kubernetes.io/serviceaccount/token and
+  the corresponding namespace file. Decodes non-sensitive JWT claims (such as
+  sub, iss, and namespace) and returns the full token without pivoting or
+  executing cluster commands. Read-only and strictly bounded.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL containing the SSRF injection sink with the '__SSRF__'
+        placeholder (e.g. 'https://target.com/fetch?url=__SSRF__'), or base URL
+        when inject_location is 'json_body' or 'header'.
+    inject_location:
+      type: string
+      description: >
+        Where to inject the candidate file:// URL: 'url_param' (substitutes
+        '__SSRF__' in target), 'json_body' (requires json_body_template),
+        or 'header' (requires header_name). Defaults to 'url_param'.
+    method:
+      type: string
+      description: >
+        HTTP method to use: 'GET' or 'POST'. Defaults to 'POST' when
+        inject_location is 'json_body', otherwise 'GET'.
+    json_body_template:
+      type: string
+      description: >
+        A JSON string with '__SSRF__' placeholder, required when
+        inject_location is 'json_body'.
+    header_name:
+      type: string
+      description: >
+        Header name to inject the candidate file:// URL into, required when
+        inject_location is 'header'.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

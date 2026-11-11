@@ -1,0 +1,27 @@
+tool_id: trufflehog
+required_binary: trufflehog
+scope_param: target
+
+description: >
+  Scan target web endpoints, JavaScript bundles, URLs, or local directories for high-entropy secrets, leaked API keys, tokens, and credentials using TruffleHog. With scan_git_history=true, target must be a git repository URL (e.g. a GitHub repo) or a local path to one -- TruffleHog clones and walks its full commit history itself, surfacing secrets that were committed and later removed, not just what exists in the current checkout. Also detects a leaked ASP.NET machineKey element (validationKey, decryptionKey, validation and decryption algorithms) in any scanned config file, surfaced unmasked as a dedicated aspnet_machinekey field in the result alongside the normal masked secrets list.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL, hostname, local directory, or (with scan_git_history=true) a git repository URL/local path, e.g. 'https://example.com/main.js', 'https://example.com', '/path/to/files', or 'https://github.com/someorg/some-repo'.
+    urls:
+      type: string
+      description: >
+        Optional comma-separated list of specific JavaScript bundles or file URLs to fetch and analyze (e.g. 'https://example.com/bundle.js,https://example.com/vendor.js'). Ignored when scan_git_history=true.
+    verify:
+      type: boolean
+      description: >
+        Whether to verify discovered credentials against live provider APIs. Defaults to false to prevent alerting external providers.
+    scan_git_history:
+      type: boolean
+      description: >
+        When true, target is treated as a git repository (URL or local path) and scanned via TruffleHog's own git-history mode, which clones and walks full commit history -- surfacing secrets committed then later deleted, which the default filesystem-scan mode (current checkout only) cannot see. Defaults to false.
+  required: ["target"]

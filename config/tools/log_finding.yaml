@@ -1,0 +1,24 @@
+tool_id: log_finding
+required_binary: null
+scope_param: null
+
+description: >
+  Record a confirmed finding for the final report: something a tool
+  actually ran and produced evidence for (an open port, a detected
+  service/version, etc.) -- not a guess. State what was found and which
+  tool call produced it. The report's Findings section is built only
+  from log_finding entries -- a real finding recorded only via log_note
+  will not appear in the report. Returns a finding_id; if this finding
+  later turns out to be wrong, pass that finding_id to retract_finding
+  rather than leaving it in the report.
+
+parameters:
+  type: object
+  properties:
+    text:
+      type: string
+      description: "The finding, written so it can be copied straight into the report."
+    evidence_id:
+      type: string
+      description: "Optional evidence_id of the tool result this finding rests on (the evidence_id field a tool returned, e.g. 'httpx_probe:example.com'). Verified against EvidenceStore; if omitted or not found in EvidenceStore from this run, the report marks the finding as unverified."
+  required: ["text"]

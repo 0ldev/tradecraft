@@ -1,0 +1,22 @@
+tool_id: asn_discovery
+required_binary: amass
+scope_param: target
+
+description: >
+  Discover Autonomous System Numbers (ASNs) and IP CIDR blocks
+  registered to the organization behind a target domain, via WHOIS and
+  organization-name search. Surfaces network ranges the org owns that
+  may not have any current subdomain pointed at them -- a breadth input
+  for further port-scanning/probing, not a standalone finding by itself.
+  Skipped automatically (returns empty results, not an error) if target
+  resolves to a private/non-global IP.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Apex domain (or its resolved public IP) to look up ASN/CIDR
+        ownership for, e.g. 'example.com'.
+  required: ["target"]

@@ -1,0 +1,47 @@
+tool_id: ssh_key_reuse_probe
+required_binary: ssh
+scope_param: null
+destructive: false
+
+description: >
+  Tests whether one SSH private key is reused across a bounded list of
+  candidate hosts (e.g. a key harvested by local_credential_harvest).
+  Tries exactly one non-interactive, key-based authentication attempt
+  per target, in order -- no password fallback, no retries, no agent
+  forwarding. On a successful auth, runs one fixed confirmation command
+  ('id') over the same session to distinguish a real usable shell from a
+  session that accepted the key but is restricted (a forced command, or
+  one that closes immediately). Each target gets at most one attempt;
+  a failed attempt is never retried. Never writes anything to a target.
+  destructive: false -- unlike a password guess, a declined SSH key
+  authentication carries no account-lockout risk. The private key value
+  itself is never echoed back in any result or error.
+
+parameters:
+  type: object
+  properties:
+    private_key:
+      type: string
+      description: >
+        PEM-formatted SSH private key content (the full
+        '-----BEGIN ... PRIVATE KEY-----' block), unencrypted. Not a
+        file path.
+    ssh_user:
+      type: string
+      description: >
+        Username to authenticate as on every candidate target.
+    targets:
+      type: array
+      items:
+        type: string
+      description: >
+        Candidate hosts to try the key against, each as 'host' or
+        'host:port' (default port 22 when omitted), e.g.
+        ['10.0.0.12', '10.0.0.15:2222']. At most 20 entries per call --
+        a longer list is rejected, not truncated; split it across
+        multiple calls instead. Duplicate host:port entries are
+        attempted only once.
+  required:
+    - private_key
+    - ssh_user
+    - targets

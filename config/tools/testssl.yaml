@@ -1,0 +1,19 @@
+tool_id: testssl
+required_binary: testssl
+scope_param: target
+
+description: >
+  Audit a host's TLS configuration: weak protocol/cipher support and
+  named vulnerabilities (e.g. Heartbleed, POODLE, ROBOT). Use once a port
+  is confirmed to speak TLS (via nmap_scan or httpx_probe) to judge
+  whether the certificate/transport layer itself is worth a finding.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host or 'host:port' to audit, e.g. '10.0.0.5' (defaults to port
+        443) or 'target.local:8443'. No URL/scheme.
+  required: ["target"]

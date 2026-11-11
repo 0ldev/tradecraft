@@ -1,0 +1,26 @@
+tool_id: php_lfi
+scope_param: target
+
+description: >
+  Tests a suspected parameter on a PHP web application for Local File Inclusion (LFI)
+  vulnerabilities using path-traversal sequences and PHP filter wrappers.
+  Confirmation-only read probe (destructive: false); verifies whether known file signatures
+  (e.g. /etc/passwd, win.ini, or base64-encoded PHP source code) appear in the response.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL of the endpoint suspected of LFI, e.g. 'https://examplepaint.com.br/index.php'.
+    parameter:
+      type: string
+      description: >
+        Vulnerable or suspected query parameter name (e.g. 'page', 'file', 'include', 'template', 'view').
+    file_path:
+      type: string
+      description: >
+        Optional specific file path to test retrieving (e.g. 'etc/passwd', 'index.php', 'windows/win.ini').
+        If omitted, common sensitive files and PHP filter wrappers are tested automatically.
+  required: ["target", "parameter"]

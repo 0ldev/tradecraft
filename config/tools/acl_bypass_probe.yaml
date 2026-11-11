@@ -1,0 +1,27 @@
+tool_id: acl_bypass_probe
+scope_param: target
+destructive: false
+
+description: >
+  Retries a URL that returns 401/403 using a bounded set of path
+  mutations and spoofed-origin headers (X-Forwarded-For, X-Original-URL,
+  etc.) -- real, documented causes of proxy/origin ACL-normalization
+  mismatches. Strictly GET-only, capped at 40 variants against one host.
+  Reports any variant whose response differs from a blocked baseline in
+  both status code and body length (a bare status-code match alone is
+  not reported, to avoid false positives from generic error pages that
+  share a status across every variant).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL currently returning 401 or 403, e.g.
+        'https://example.com/admin'.
+    timeout:
+      type: integer
+      description: >
+        Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

@@ -1,0 +1,33 @@
+profile_id: ad-network
+description: >
+  Internal Active Directory and Windows network pentesting profile. Includes network
+  reconnaissance, protocol probing, and credential assessment tools.
+tool_ids:
+  - nmap_scan
+  - nmap_vuln_scan
+  - tcp_probe
+  - anon_service_probe
+  - openvpn_probe
+  - smtp_probe
+  - mail_access_probe
+  - hydra
+  - cupp
+  - searchsploit
+  - trufflehog
+  - httpx_probe
+  - http_request
+  - http_write_request
+  - kerbrute
+  - kerbrute_spray
+  - powerview
+  - bloodhound
+  - winpeas
+  - netexec_enum
+  - netexec_exploit
+  - certipy_enum
+  - kerberoast
+  - secretsdump
+  - ticketer
+  - certipy_exploit
+  - coercer
+  - ntlm_info_disclosure_probe

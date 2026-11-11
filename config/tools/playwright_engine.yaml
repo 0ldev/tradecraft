@@ -1,0 +1,46 @@
+tool_id: playwright_engine
+scope_param: target_url
+
+description: >
+  Drive a real headless Chromium browser against a URL and perform a
+  sequence of model-chosen actions (click, fill, navigate, wait), then
+  report triggered network requests (method, URL, non-boilerplate
+  headers, POST body, and JSON parameter names), DOM-based XSS
+  confirmation, browser storage key names (not values), and a
+  screenshot saved to evidence storage. Use for JS-rendered single-page
+  apps where a static crawl (katana/gau) can't see a URL the app only
+  constructs at runtime from user interaction.
+  Each action in the actions list is one of:
+  {"action": "click", "selector": "<css selector>"},
+  {"action": "fill", "selector": "<css selector>", "value": "<text>"},
+  {"action": "fill_first_match", "value": "<text>", "submit": true/false}
+  (generically fills whichever matching text input is actually visible,
+  without needing a page-specific selector -- use this over plain
+  "fill" when you don't know the exact selector yet),
+  {"action": "wait", "value": <milliseconds>},
+  {"action": "navigate", "url": "<url>"}.
+
+parameters:
+  type: object
+  properties:
+    target_url:
+      type: string
+      description: >
+        Full URL to load, e.g. 'https://colaborador.example.com.br'.
+    actions:
+      type: string
+      description: >
+        JSON array of action objects to perform in order after the page
+        loads, e.g. '[{"action":"fill_first_match","value":"test","submit":true}]'.
+        Defaults to an empty list (just load the page and report).
+    probe_xss:
+      type: boolean
+      description: >
+        If true, after actions run, check whether a benign DOM-XSS
+        marker fed into any filled input landed unescaped in the page's
+        rendered HTML (a real confirmation technique, not an exploit
+        payload). Defaults to false.
+    timeout_seconds:
+      type: integer
+      description: "Overall navigation/action timeout in seconds. Defaults to 60."
+  required: ["target_url"]

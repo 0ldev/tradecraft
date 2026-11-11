@@ -1,0 +1,46 @@
+tool_id: nosql_injection_probe
+scope_param: target
+destructive: false
+
+description: >
+  Injects MongoDB-style NoSQL query operators ($ne, $gt, $regex, $exists,
+  $where) into one field of a JSON request body, replacing its normal
+  string value, and compares each response against a baseline (sent with
+  the field's original value unchanged) for a status-code and body-length
+  anomaly -- the signature of a query that behaved differently once an
+  operator object replaced a plain value, which is how NoSQL injection
+  typically manifests (an unexpected match, an error, or an auth/query
+  outcome flip). Confirmation-only differential probe (destructive:
+  false), mirroring form_fuzzer's and idor_probe's non-destructive
+  fuzzing shape -- it does NOT attempt to log in as anyone or claim an
+  auth bypass; it only reports an anomalous response shape for manual
+  follow-up. Strictly POST with a JSON body, hard-capped at 6 operator
+  variants per call.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Target URL to POST the JSON body to, e.g. 'https://example.com/api/search'."
+    body:
+      type: string
+      description: >
+        The baseline JSON request body as a string, e.g.
+        '{"username": "test", "password": "test"}'. Must be valid JSON
+        and must already contain the field named in 'field'.
+    field:
+      type: string
+      description: >
+        Name of the top-level JSON field in 'body' whose value will be
+        replaced with each NoSQL operator payload in turn, e.g.
+        'username' or 'query'.
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP request headers, separated by newlines
+        (e.g. 'Authorization: Bearer token\nCookie: session=xyz').
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10."
+  required: ["target", "body", "field"]

@@ -1,0 +1,31 @@
+tool_id: dangling_resource_probe
+scope_param: target
+destructive: false
+
+description: >
+  Checks a candidate hostname (typically one with a CNAME or A record
+  already pointing at a cloud provider, discovered by dnsx/subfinder)
+  against a small built-in table of well-known "this cloud resource is
+  unclaimed" response signatures (GitHub Pages, Heroku, Azure Web Apps,
+  AWS S3 static-website hosting, Fastly, Shopify). A match means the DNS
+  record still points at the provider but nothing has claimed that
+  specific resource name there -- the classic subdomain/cloud-resource
+  takeover setup: anyone can register that exact resource name on the
+  provider and serve content under the victim's own domain. Pure
+  Python, no external binary required -- a complement to the existing
+  subzy tool (which wraps a separate Go binary and its own larger
+  fingerprint database), not a replacement for it; prefer subzy for
+  broader coverage, and use this when subzy's binary isn't available or
+  as a second, independently-implemented confirmation. One anonymous
+  GET per call, read-only.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Candidate hostname to check, e.g. 'forgotten.example.com'."
+    timeout:
+      type: integer
+      description: "Request timeout in seconds. Defaults to 10."
+  required: ["target"]

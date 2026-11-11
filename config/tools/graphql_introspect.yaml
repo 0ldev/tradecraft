@@ -1,0 +1,18 @@
+tool_id: graphql_introspect
+scope_param: url
+
+description: >
+  Send a minimal GraphQL introspection query to a URL and report whether
+  introspection is enabled (and, if so, the schema's type names) or
+  disabled. Takes one URL known to be a GraphQL endpoint -- it does not
+  discover GraphQL routes itself.
+
+parameters:
+  type: object
+  properties:
+    url:
+      type: string
+      description: >
+        Full URL of a suspected GraphQL endpoint, e.g.
+        'https://api.exampleauto.com.br/graphql'.
+  required: ["url"]

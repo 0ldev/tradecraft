@@ -1,0 +1,49 @@
+tool_id: path_traversal_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests a suspected parameter on a web application (any backend stack --
+  not PHP-specific, unlike the existing php_lfi tool) for path traversal
+  / Local File Inclusion using a bounded set of stack-agnostic payloads:
+  raw and URL-encoded (single and double) '../' traversal, backslash
+  variants for Windows/.NET, a doubled-dot filter-bypass variant, and
+  absolute-path attempts against known files across multiple stacks
+  (/etc/passwd, win.ini, Java/Spring's WEB-INF/web.xml, a Node-style
+  .env). Confirmation-only read probe (destructive: false): verifies
+  whether a known file signature (e.g. 'root:x:0:0:', '[fonts]') appears
+  in the response, and stops probing for new encoding styles at the
+  first confirmed hit.
+
+  Once one style+depth is confirmed, it is replayed (same single-GET
+  mechanism, no new risk tier) against a second, fixed, bounded list of
+  higher-value files instead of stopping at "traversal confirmed":
+  Unix-family confirmations (raw, URL-encoded, fully/double-encoded,
+  doubled-dot-bypass, absolute) try /proc/self/environ (process
+  environment variables -- often DB passwords/API keys), a Laravel-style
+  .env, root's SSH private key, and /etc/shadow. Windows-family
+  confirmations (backslash, encoded-backslash) try an IIS/ASP.NET
+  web.config (connection strings). A follow-up failure never downgrades
+  the already-confirmed finding. The model-facing result carries the
+  harvested files' descriptions and a count; full response bodies are
+  persisted as evidence, not returned inline every turn.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL of the suspected endpoint, e.g.
+        'https://example.com/download?file=report.pdf'. A bare host is
+        treated as https.
+    parameter:
+      type: string
+      description: >
+        Name of the query parameter to inject traversal payloads into,
+        e.g. 'file' or 'path'. Added to the query string if not already
+        present.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 15."
+  required: ["target", "parameter"]

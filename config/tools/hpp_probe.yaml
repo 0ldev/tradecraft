@@ -1,0 +1,48 @@
+tool_id: hpp_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes HTTP Parameter Pollution by sending a baseline request, then
+  duplicate-parameter variants for up to five selected parameters in both
+  orderings (original-then-sentinel and sentinel-then-original). Query
+  strings and form-encoded bodies are duplicated as repeated pairs; a
+  JSON-object body gets a second key with the same name inserted at the
+  start or end. Each attempt carries a unique rs_hpp_* sentinel, so the
+  result can distinguish a value that reached server-side handling
+  (sentinel reflected) from a response that merely changed. Hard-capped at
+  10 variant requests. This tool reports observed behavior; HPP is a
+  WAF/validation-bypass technique, not a vulnerability on its own.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "URL to probe, e.g. 'https://example.com/search?q=test'."
+    method:
+      type: string
+      description: >
+        HTTP method to use: 'GET' (default), 'HEAD', 'OPTIONS', or 'POST'.
+        'PUT', 'DELETE', and 'PATCH' are rejected -- use http_write_request
+        for those.
+    params:
+      type: string
+      description: >
+        Optional comma-separated parameter names to duplicate, e.g.
+        'q,role'. If omitted, every existing query/form/JSON key is used
+        (up to five).
+    body:
+      type: string
+      description: >
+        Optional raw request body. Form-encoded and JSON-object bodies are
+        supported; JSON duplicate keys are inserted textually.
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP headers separated by newlines (e.g.
+        'Authorization: Bearer token\nCookie: session=xyz').
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

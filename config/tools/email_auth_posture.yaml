@@ -1,0 +1,34 @@
+tool_id: email_auth_posture
+required_binary: dnsx
+scope_param: target
+
+description: >
+  Check a domain's email-spoofing and transport defenses: SPF policy strength
+  (on the apex), DMARC presence and policy strength (at _dmarc.<domain>),
+  best-effort DKIM record presence (at common selector names), and inbound
+  MTA-STS / TLS-RPT transport encryption enforcement (at _mta-sts.<domain> and
+  _smtp._tls.<domain>). Scores SPF/DMARC as strict, weak, or missing, and
+  evaluates MTA-STS mode (enforce, testing, or missing) -- doesn't just report
+  raw record text. DKIM uses unpredictable selector names, so an absence at the
+  selectors tried is reported as inconclusive.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Apex domain to check, e.g. 'example.com'. Always use the apex,
+        not a subdomain -- SPF/DMARC/DKIM/MTA-STS policy lives at the
+        organizational domain regardless of which subdomain you were
+        originally investigating.
+    dkim_selectors:
+      type: string
+      description: >
+        Optional comma-separated list of DKIM selector names to try
+        instead of the built-in default list (google, selector1,
+        selector2, default, dkim, k1, mail). Supply this if you already
+        know the mail provider's typical selector from context (e.g.
+        Microsoft 365 uses selector1/selector2, Google Workspace uses
+        google).
+  required: ["target"]

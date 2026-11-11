@@ -1,0 +1,45 @@
+tool_id: websocket_security_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests a WebSocket endpoint for missing Origin validation (Cross-Site
+  WebSocket Hijacking / CSWSH). Over a raw socket (TLS-wrapped for
+  wss/443, no third-party websocket library), sends a manual WebSocket
+  upgrade HTTP request per candidate Origin header value and reads
+  whether the server replies 101 Switching Protocols. By default tests
+  one same-origin control value and one cross-origin value
+  ('https://evil.tradecraft-probe.test'); a cross-origin Origin that still
+  receives a 101 response means the server accepts the handshake
+  regardless of Origin. Capped at 5 connection attempts per call, each
+  closed immediately after the handshake response is read -- no
+  WebSocket frames are ever sent after the upgrade.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host[:port] (or a ws://, wss://, http://, https:// URL) of the
+        WebSocket endpoint, e.g. 'chat.example.com:443' or
+        'wss://chat.example.com/socket'.
+    path:
+      type: string
+      description: "Path to request the upgrade on. Defaults to '/'."
+    origins_to_test:
+      type: string
+      description: >
+        Optional comma-separated list of Origin header values to try,
+        capped at 5. The literal value 'same-origin' is replaced with
+        the target's own scheme+host. Defaults to
+        'same-origin,https://evil.tradecraft-probe.test'.
+    cookie:
+      type: string
+      description: >
+        Optional Cookie header value to send with the handshake, to
+        test whether the upgrade honors or ignores session auth.
+    timeout:
+      type: integer
+      description: Per-connection timeout in seconds (1-10). Defaults to 5.
+  required: ["target"]

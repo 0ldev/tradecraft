@@ -1,0 +1,42 @@
+tool_id: saml_signature_bypass_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests an SP's SAML signature validation by applying a bounded, named
+  set of well-known bypass mutations to a real, previously captured
+  SAMLResponse XML -- it mutates an existing login's assertion, it does
+  NOT forge one from nothing, so a captured SAMLResponse from a
+  legitimate login is required. Mutations: (1) strip_signature --
+  removes the <Signature> element entirely; (2) xml_signature_wrapping
+  -- duplicates the signed Assertion with an attacker-modified NameID
+  ahead of the original, still-signed copy (a classic XSW shape where a
+  naive validator checks the wrong element); (3)
+  comment_injection_nameid -- inserts an XML comment inside NameID
+  (e.g. 'admin<!---->@evil-tradecraft-probe.test') to exploit a
+  regex-only identity check. Each mutation is base64-re-encoded and
+  POSTed to the SP's ACS URL once; the SP accepting any mutation as a
+  valid authenticated session (a session cookie or redirect to an
+  authenticated area, with no rejection message) means signature
+  validation is bypassable -- a full SSO authentication bypass. This is
+  classified destructive: false because it tests the SP's own
+  validation logic rather than mutating persistent target state; a
+  resulting authenticated session is reversible the same way any other
+  auth-bypass-shaped-but-observational tool in this project is.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "The SP's SAML Assertion Consumer Service (ACS) URL, e.g. 'https://app.example.com/saml/acs'."
+    saml_response:
+      type: string
+      description: >
+        Base64-encoded SAMLResponse XML captured from a real, legitimate
+        login. Required -- this tool mutates an existing captured
+        response, it does not forge one from nothing.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target", "saml_response"]

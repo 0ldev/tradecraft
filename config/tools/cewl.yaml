@@ -1,0 +1,39 @@
+tool_id: cewl
+required_binary: cewl
+scope_param: target
+destructive: false
+
+description: >
+  Crawls a target website and extracts the words it actually uses into a
+  candidate wordlist -- jargon, product names, and terms specific to that
+  organization, which generic wordlists miss. Read-only GET requests only;
+  this tool never submits a guess itself. Feed its output into hydra,
+  kerbrute_spray, or sqli_login's username/password parameters as a
+  literal comma-separated list once you've picked the most promising
+  words -- it doesn't write a wordlist file those tools can reference by
+  name.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL or host to crawl, e.g. 'https://target.local' or 'target.local'
+        (scheme defaults to https:// if omitted).
+    depth:
+      type: integer
+      description: >
+        How many links deep to crawl from the starting page. Clamped to
+        1-3. Defaults to 2. Higher depth finds more words but takes
+        longer and sends more requests.
+    min_word_length:
+      type: integer
+      description: >
+        Discard words shorter than this. Defaults to 3.
+    max_words:
+      type: integer
+      description: >
+        Cap on how many words are returned. Defaults to 200, hard-capped
+        at 200 regardless of how many cewl actually finds.
+  required: ["target"]

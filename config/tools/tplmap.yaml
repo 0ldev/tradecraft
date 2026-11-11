@@ -1,0 +1,24 @@
+tool_id: tplmap
+required_binary: python3
+scope_param: target_url
+
+description: >
+  Test a URL for Server-Side Template Injection (SSTI) -- a class of
+  vulnerability where user input is unsafely rendered through a
+  server-side template engine (Jinja2, Twig, Freemarker, Velocity, and
+  others). Detection only: identifies whether an injection point exists
+  and which template engine is in use, WITHOUT attempting code execution
+  or any other exploitation. Most useful against a parameter already
+  observed being reflected verbatim into a page (a "greeting"/"name"-
+  style parameter, or any input whose value appears unmodified
+  elsewhere in the response).
+
+parameters:
+  type: object
+  properties:
+    target_url:
+      type: string
+      description: >
+        Full URL, including the parameter to test, e.g.
+        'https://example.com/greet?name=test'.
+  required: ["target_url"]

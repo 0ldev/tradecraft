@@ -1,0 +1,37 @@
+tool_id: identity_auth_bypass
+scope_param: target
+destructive: true
+destructive_categories:
+  - credential_or_secret_exposure
+
+description: >
+  Checks a set of common identity endpoints (/api/me, /api/user, /rest/user/whoami,
+  /account, and similar) for an alg=none JWT auth bypass: for each path, sends one
+  unauthenticated request and one request carrying a forged alg=none copy of the
+  given token, and reports a bypass only when the unauthenticated request was
+  rejected (401/403) and the forged request was accepted (200). Stops at the first
+  confirmed bypass; probes at most 13 paths. Forges the token's claims itself, so
+  it does not need jwt_analyze to run first. Covers only the identity-endpoint sweep,
+  not the single-URL differential jwt_analyze performs. Classified as destructive:
+  true (sends a forged-credential auth attempt); available only when
+  --allow-destructive is specified.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL of the application whose identity endpoints are probed, e.g.
+        'https://api.example.com'. A bare host is treated as https.
+    token:
+      type: string
+      description: >
+        The existing JWT (three base64url segments separated by '.') whose claims
+        are re-signed with alg=none for the forged attempt.
+    test_path:
+      type: string
+      description: >
+        Optional extra identity endpoint path to probe first, e.g. '/api/v2/session'.
+        Probed before the built-in candidate list.
+  required: ["target", "token"]

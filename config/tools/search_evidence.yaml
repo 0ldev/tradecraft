@@ -1,0 +1,18 @@
+tool_id: search_evidence
+
+description: >
+  Search across saved evidence files for a keyword or string. Use this to quickly find
+  specific banners, headers, cookies, or error messages across all targets without re-running scans.
+
+parameters:
+  type: object
+  properties:
+    query:
+      type: string
+      description: >
+        String to search for across stored evidence (case-insensitive substring match).
+    target:
+      type: string
+      description: >
+        Optional host or domain to restrict the search to. If omitted, searches across all targets.
+  required: ["query"]

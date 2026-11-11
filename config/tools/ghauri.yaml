@@ -1,0 +1,27 @@
+tool_id: ghauri
+required_binary: ghauri
+scope_param: target
+description: >
+  Advanced, low-noise SQL injection detection and verification engine.
+  Tests candidate parameters against modern WAF-protected backends using
+  boolean-based, error-based, time-based blind, and stacked queries.
+parameters:
+  type: object
+  required:
+    - target
+  properties:
+    target:
+      type: string
+      description: Target HTTP or HTTPS URL to test for SQL injection (e.g. 'https://example.com/items?id=1').
+    parameter:
+      type: string
+      description: Specific GET or POST parameter name to test (e.g. 'id' or 'category').
+    data:
+      type: string
+      description: Optional POST data string (e.g. 'user=admin&pass=test').
+    headers:
+      type: string
+      description: Optional extra HTTP headers separated by newline.
+    level:
+      type: integer
+      description: Level of tests to perform (1-3). Defaults to 1 for fast verification.

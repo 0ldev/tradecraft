@@ -1,0 +1,40 @@
+tool_id: kube_hunter_enum
+required_binary: kube-hunter
+scope_param: target
+destructive: false
+
+description: >
+  Passive, read-only Kubernetes cluster vulnerability discovery via
+  kube-hunter's remote mode. Scans one host or one IPv4 CIDR range no
+  broader than /24 for Kubernetes services (API server, kubelet, etcd,
+  dashboard, proxy) and passive misconfigurations, returning kube-hunter's
+  own JSON nodes/services/vulnerabilities entries. Never passes --active,
+  so kube-hunter's active hunters -- the ones that exploit or mutate the
+  cluster -- are not registered or run; no request creates, modifies, or
+  deletes cluster resources. Bounded to 32 worker threads, a 3s network
+  timeout, and a 600s process timeout. At most 50 nodes, 100 services, and
+  200 findings are returned per call (full counts and truncation flags);
+  the complete JSON report is kept as evidence.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Single host (IP or DNS name) or one IPv4 CIDR range no broader
+        than /24, e.g. '10.0.0.10' or '10.0.0.0/24'. Target lists, IP
+        ranges, and local files are rejected.
+    token:
+      type: string
+      description: >
+        Optional service account JWT. When supplied, kube-hunter uses it
+        for authenticated API-server checks instead of anonymous access.
+    cve_hunting:
+      type: boolean
+      description: >
+        Also match discovered component versions against known CVEs
+        (-enable-cve-hunting). Version comparison only; no exploitation
+        (default: false).
+  required:
+    - target

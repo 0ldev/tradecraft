@@ -1,0 +1,45 @@
+tool_id: serverless_exposure_probe
+scope_param: candidates
+destructive: false
+
+description: >
+  Checks candidate serverless function endpoints for unauthenticated
+  access: AWS Lambda Function URLs, Azure Function Apps, and GCP Cloud
+  Functions. GETs each constructed or supplied URL with no
+  authentication; HTTP 200 is reported as exposed, and its body is
+  swept (capped at 10 matches) for leaked env-var-shaped secrets
+  (AWS_SECRET_ACCESS_KEY, *_KEY/*_SECRET/*_TOKEN assignments, DB
+  connection strings). HTTP 403 with an IAM-auth-required message means
+  the function exists but is not exposed. Read-only GET, no invocation
+  payload is ever sent.
+
+parameters:
+  type: object
+  properties:
+    provider:
+      type: string
+      description: "'aws', 'azure', or 'gcp'. Required."
+    candidates:
+      type: string
+      description: >
+        Comma-separated candidates, hard-capped at 20 resolved URLs per
+        call. For aws: a Lambda Function URL id, optionally
+        'id:region' (region defaults to us-east-1), e.g.
+        'abc123xyz' or 'abc123xyz:eu-west-1'. For azure: a function-app
+        name, e.g. 'examplecorp-prod' (combined with function_names).
+        For gcp: either a colon-separated 'region:project:name' triple
+        (colons, not commas, since the candidates list itself is
+        comma-separated) or a bare 'region-project' Cloud Functions
+        hostname part (combined with function_names). A full 'http://'
+        or 'https://' URL is also accepted directly for any provider
+        and used as-is.
+    function_names:
+      type: string
+      description: >
+        Optional comma-separated list of function names to guess for
+        azure/gcp candidates given without an explicit name. Defaults
+        to 'default,api,health'.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["provider", "candidates"]

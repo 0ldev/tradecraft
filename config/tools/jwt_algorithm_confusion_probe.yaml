@@ -1,0 +1,41 @@
+tool_id: jwt_algorithm_confusion_probe
+scope_param: target
+destructive: false
+
+description: >
+  Test a known RS256-signed JWT for the RS256->HS256 key-confusion
+  signature bypass: decode the token, forge a new one with alg set to
+  "HS256", apply the same basic privilege-escalation heuristic to its
+  claims jwt_analyze uses (role/admin/user fields), then sign it with
+  HMAC-SHA256 using the server's own RS256 public key (PEM) as the HMAC
+  secret -- a verifier that doesn't check the algorithm the key is
+  actually for will accept this as a validly-signed token. Tries
+  exactly two signing variants (the PEM exactly as given, and the same
+  PEM with line endings normalized to LF-only, since the HMAC signs
+  over the key's raw bytes), each as a before/after differential request
+  to target. Reports a real vulnerability only if the unauthenticated
+  baseline was rejected (401/403) and the forged token was accepted
+  (200). Distinct from jwt_analyze's alg=none check. Requires a real
+  JWT and the server's RS256 public key you already have (e.g. pulled
+  from a JWKS endpoint) -- this tool does not discover or steal either
+  itself.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL to send the differential baseline/forged-token test against,
+        e.g. 'https://api.example.com/account'.
+    token:
+      type: string
+      description: >
+        The existing RS256-signed JWT (three base64url segments
+        separated by '.') to decode and forge from.
+    public_key:
+      type: string
+      description: >
+        The server's RS256 public key in PEM format, used as the HMAC-
+        SHA256 signing key for the forged token.
+  required: ["target", "token", "public_key"]

@@ -1,0 +1,34 @@
+# Model-facing contract for the nmap_vuln_scan tool. The implementation
+# (tradecraft/tools/nmap_vuln_scan.py) only implements run() -- everything the
+# model is told, and everything about how the loop treats this tool
+# (required binary, which param is a scope-checked target, destructive
+# classification), lives here. A completeness test
+# (tests/test_tool_schema_completeness.py) checks this file's `parameters`
+# against the real run() signature in both directions.
+
+tool_id: nmap_vuln_scan
+required_binary: nmap
+scope_param: target
+destructive: false
+
+description: >
+  Run bounded, non-intrusive Nmap NSE vulnerability and safe-category
+  scripts against an explicit list of ports on one host. Requires ports
+  (max 20). Returns each open port with the NSE script results it
+  produced. Excludes dos, exploit, brute, intrusive and external scripts.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host or IP to scan, e.g. '10.0.0.5' or 'target.local'. A bare host
+        only; use the ports parameter to choose ports.
+    ports:
+      type: string
+      description: >
+        Required. Explicit comma-separated port list, at most 20 ports, e.g.
+        '80,443,445'. Ranges and full-range sweeps are rejected. Typically
+        taken from the open ports reported by a prior nmap_scan call.
+  required: ["target", "ports"]

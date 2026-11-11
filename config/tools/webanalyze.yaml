@@ -1,0 +1,18 @@
+tool_id: webanalyze
+required_binary: webanalyze
+scope_param: target
+
+description: >
+  Fingerprints web technologies (frameworks, CMS, analytics, server
+  software) via Webanalyze's Wappalyzer-format signature database --
+  an independently-maintained signature set from whatweb's, catching
+  technologies whatweb's own fingerprints miss.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL or hostname to fingerprint, e.g. 'https://examplepaint.com.br'.
+  required: ["target"]

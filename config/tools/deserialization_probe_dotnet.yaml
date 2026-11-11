@@ -1,0 +1,81 @@
+tool_id: deserialization_probe_dotnet
+scope_param: target
+destructive: true
+destructive_categories:
+  - code_execution
+
+description: >
+  Confirms an ASP.NET ViewState deserialization RCE sink by generating a ysoserial.net
+  gadget-chain payload whose embedded command is an out-of-band DNS lookup against an
+  interactsh domain the model must already have generated (via interactsh's 'generate'
+  action), then delivers it in one HTTP POST as the __VIEWSTATE form field -- the only
+  real-world ViewState delivery shape, never a cookie or header. Two modes: without
+  validation_key, generates an unsigned/unencrypted payload for a target with
+  EnableViewStateMac=false (no key material needed). With validation_key (a real leaked
+  machineKey validationKey -- e.g. from trufflehog's aspnet_machinekey detection), generates
+  a signed (and, if decryption_key is also given, encrypted) payload matching the target's
+  real machineKey configuration. Reports only what was attempted (mode, gadget, HTTP status)
+  -- it cannot itself confirm execution, since a deserialization sink does not echo command
+  output into the HTTP response. Confirming a hit requires polling interactsh separately
+  afterward and matching the callback to this call's own oob_domain and timing. Classified as
+  destructive: true (a successful chain is real, unconfirmed-blast-radius remote code
+  execution on the target); available only when --allow-destructive is specified. Requires
+  Wine plus a bootstrapped .NET Framework install and ysoserial.net on this host (Linux Mono
+  cannot run the keyed ViewState-plugin mode at all). Java deserialization (ysoserial, a
+  different gadget-chain ecosystem) is out of scope for this tool -- use
+  deserialization_probe instead.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL of the ASP.NET page to post the forged __VIEWSTATE to, e.g.
+        'https://example.com/admin/default.aspx'. A bare host is treated as http.
+    oob_domain:
+      type: string
+      description: >
+        An interactsh payload domain already generated via the interactsh tool's 'generate'
+        action, e.g. 'abc123.oast.me'. The ysoserial.net payload's embedded command resolves
+        this domain; poll interactsh separately afterward to check for the callback.
+    payload_type:
+      type: string
+      description: >
+        ysoserial.net gadget-chain name to generate, e.g. 'TypeConfuseDelegate' (default),
+        'ObjRef', 'ActivitySurrogateSelector'. Matches a gadget confirmed (or suspected, e.g.
+        from a .NET Framework version fingerprint) compatible with the target.
+    validation_key:
+      type: string
+      description: >
+        A real, leaked machineKey validationKey (hex string) for the target -- e.g. surfaced
+        by trufflehog's ASP.NET machineKey detection. When given, generates a signed ViewState
+        payload via ysoserial.net's -p ViewState plugin instead of the unprotected default.
+    validation_algorithm:
+      type: string
+      description: >
+        machineKey validation attribute (the HMAC algorithm): 'SHA1', 'HMACSHA256' (default),
+        'HMACSHA384', 'HMACSHA512', 'MD5', '3DES', or 'AES'. Only used when validation_key is
+        given; must match the target's real configuration or the forged signature won't verify.
+    decryption_key:
+      type: string
+      description: >
+        A real, leaked machineKey decryptionKey (hex string). When given alongside
+        validation_key, generates an encrypted-and-signed payload instead of signed-only.
+    decryption_algorithm:
+      type: string
+      description: >
+        machineKey decryption attribute (the symmetric cipher): 'DES', '3DES', or 'AES'
+        (default). Only used when decryption_key is given.
+    path:
+      type: string
+      description: >
+        The target page's path for ysoserial.net's own ViewState-plugin computation, e.g.
+        '/admin/default.aspx'. Only used in keyed mode (validation_key given); defaults to
+        target's own URL path, or '/default.aspx' if target has no path component.
+    apppath:
+      type: string
+      description: >
+        The target's ASP.NET virtual application path, e.g. '/myapp/'. Only used in keyed
+        mode; defaults to '/'.
+  required: ["target", "oob_domain"]

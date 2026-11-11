@@ -1,0 +1,36 @@
+tool_id: httpx_probe
+# Installed as 'pd-httpx' -- the plain 'httpx' name collides with the
+# unrelated Python httpx package's own CLI console-script, which can be
+# present on the same PATH (e.g. inside this project's own venv).
+required_binary: pd-httpx
+scope_param: target
+
+description: >
+  Probe a single host/URL or multiple hosts/URLs in parallel to confirm they are
+  actually serving HTTP(S) and capture status codes, page titles, web
+  servers, and missing security headers. Use after nmap_scan or subfinder
+  to check whether hosts/ports are live web services before investing
+  further tools in them. When checking multiple discovered hosts, ALWAYS pass
+  them as a single comma-separated batch rather than calling httpx_probe
+  repeatedly for each host individually.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host, 'host:port', full URL, or a comma-separated list of
+        hosts/URLs to probe in one call, e.g. '10.0.0.5',
+        'https://target.local', or 'sub1.example.com,sub2.example.com'.
+        Always pass discovered host batches as a single comma-separated call
+        rather than making multiple single-target calls.
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP request headers, separated by newlines (e.g.
+        'Authorization: Bearer token\nX-Api-Key: xyz'), applied to every
+        URL in this call. Use when probing paths behind an API key or auth
+        header so the result reflects real reachability instead of a
+        blanket unauthorized status for every candidate.
+  required: ["target"]

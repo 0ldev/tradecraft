@@ -1,0 +1,35 @@
+tool_id: dalfox
+required_binary: dalfox
+scope_param: target
+
+description: >
+  Scan target web endpoints and parameters for Cross-Site Scripting (XSS) vulnerabilities, including reflected, stored, and DOM-based XSS.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL to test for XSS vulnerabilities (e.g. 'https://example.com/search?q=test' or 'https://example.com/app').
+    parameter:
+      type: string
+      description: >
+        Specific parameter name to test (e.g. 'q', 'search', 'redirect'). If omitted, dalfox tests all parameters found in target URL query or body.
+    data:
+      type: string
+      description: >
+        POST body data string to test (e.g. 'q=test&id=1').
+    method:
+      type: string
+      description: >
+        HTTP method: 'GET' or 'POST'. Defaults to 'GET'.
+    cookie:
+      type: string
+      description: >
+        Optional cookie string for authenticated requests (e.g. 'session=xyz; token=abc').
+    header:
+      type: string
+      description: >
+        Optional custom HTTP header string (e.g. 'Authorization: Bearer xyz').
+  required: ["target"]

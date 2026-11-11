@@ -1,0 +1,34 @@
+tool_id: azure_tenant_recon
+scope_param: domain
+destructive: false
+
+description: >
+  Unauthenticated Azure AD / Entra ID recon. Always does one GET to the
+  domain's OIDC well-known discovery endpoint to confirm Azure-AD
+  backing, recover the tenant ID, and report whether the domain is
+  managed or federated (one GetCredentialType lookup on a fixed,
+  non-existent local part). If usernames are supplied, also
+  POSTs each to Azure AD's own GetCredentialType endpoint (bounded to
+  25 per call) to check existence and report the namespace type
+  Azure AD returns for each -- this performs no
+  sign-in attempt and never submits a password. Only an IfExistsResult
+  of 0 (exists) or 1 (does not exist) is treated as a definite answer;
+  other codes are reported as unresolved, not as found or missing.
+
+parameters:
+  type: object
+  properties:
+    domain:
+      type: string
+      description: "Domain to check, e.g. 'example.com'."
+    usernames:
+      type: string
+      description: >
+        Optional comma-separated candidate usernames/emails to check
+        for existence (e.g. 'admin@example.com,info@example.com').
+        Capped at 25 per call -- extra entries are dropped, not an
+        error.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["domain"]

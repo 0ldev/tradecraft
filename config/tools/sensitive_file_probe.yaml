@@ -1,0 +1,30 @@
+tool_id: sensitive_file_probe
+scope_param: target
+destructive: false
+
+description: >
+  Checks a fixed, bounded list (~16) of high-value sensitive file paths
+  against a target over plain GET -- .env, .git/config, .git/HEAD,
+  .aws/credentials, terraform.tfstate, docker-compose.yml, .DS_Store,
+  backup.sql, database.sql, .npmrc, id_rsa, debug.log,
+  wp-config.php.bak, config.json.bak, .htpasswd. Fetches one
+  definitely-nonexistent path first as a baseline, then only flags a
+  candidate as a real hit when its response differs from that baseline
+  AND its body matches a content-shape heuristic for that file type
+  (e.g. .env/.git/config as key=value-shaped text, terraform.tfstate as
+  JSON with a "version" key, id_rsa starting with "-----BEGIN"). This
+  avoids false positives from a soft-404 page that returns HTTP 200 for
+  every unknown path. Read-only, GET-only, no write to the target.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL or host to probe, e.g. 'https://examplecorp.com' or
+        'examplecorp.com'.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

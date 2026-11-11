@@ -1,0 +1,31 @@
+tool_id: docker_api_probe
+scope_param: target
+destructive: false
+
+description: >
+  Checks whether a Docker Engine API (the daemon's own remote management
+  API, default port 2375) is reachable without any credential. Performs
+  three anonymous GETs only: /version (confirms the API and its version),
+  /info (daemon-wide stats: container/image counts, OS, architecture),
+  and /containers/json (lists up to 25 existing containers by name,
+  image, and state). Never creates, starts, stops, or deletes a
+  container, and never pulls an image -- read-only recon. An
+  unauthenticated Docker API is a critical finding: anyone who can reach
+  it can run any command as root on the host by creating a container
+  with the host filesystem bind-mounted, but this tool stops at
+  confirming the API is open and what it exposes, and does not attempt
+  that.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host or host:port of the candidate Docker API, e.g.
+        '192.168.1.50' or '192.168.1.50:2375'. Defaults to port 2375 if
+        no port is given.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10."
+  required: ["target"]

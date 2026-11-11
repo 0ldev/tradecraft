@@ -1,0 +1,34 @@
+tool_id: ffuf_vhost
+required_binary: ffuf
+scope_param: target
+
+description: >
+  Discover hidden virtual hosts sharing the same IP/server as a target
+  by fuzzing the Host header against a vhost-name wordlist, instead of
+  fuzzing the URL path. Finds internal/staging/admin vhosts that never
+  show up in DNS-based subdomain enumeration because they're reachable
+  only by sending the right Host header to a shared server -- especially
+  relevant behind a CDN or on any multi-tenant web server. Auto-
+  calibrates against a randomized-prefix baseline Host to filter out
+  identical WAF/default-vhost noise.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target host or URL whose shared server to probe for other
+        vhosts, e.g. 'example.com' or 'https://example.com'.
+    wordlist:
+      type: string
+      enum: ["vhosts-small", "vhosts", "vhosts-large"]
+      description: >
+        Which bundled vhost-name-prefix wordlist to fuzz the Host header
+        with. Defaults to 'vhosts'. 'vhosts-small' (100 entries, from
+        SecLists subdomain frequency data): fast, low-volume first pass.
+        'vhosts' (253 entries, curated: intranet, admin, mgmt, staging,
+        and similar): the default, vhost-specific rather than generic
+        subdomain names. 'vhosts-large' (2000 entries, from SecLists):
+        broader sweep once the smaller lists come up empty.
+  required: ["target"]

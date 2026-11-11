@@ -1,0 +1,20 @@
+tool_id: dnsx
+required_binary: dnsx
+scope_param: target
+
+description: >
+  Query DNS records (A, AAAA, CNAME, MX, TXT/SPF, NS, SOA) and bulk-resolve candidate subdomains
+  to verify live hosts, mail exchange services, and perimeter infrastructure.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Domain, hostname, or comma-separated list of hostnames to resolve, e.g. 'example.com' or 'sub1.example.com,sub2.example.com'.
+    query_type:
+      type: string
+      description: >
+        DNS query mode. 'recon' (default) queries all record types (A, AAAA, CNAME, MX, TXT, NS, SOA); 'a' queries IPv4 addresses only; 'mx' queries mail servers; 'cname' queries canonical names; 'txt' queries SPF/TXT records.
+  required: ["target"]

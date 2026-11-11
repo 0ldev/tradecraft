@@ -1,0 +1,30 @@
+profile_id: kubernetes
+description: >
+  Kubernetes cluster and containerized infrastructure assessment profile.
+  Includes network discovery, service probing, and secret discovery tools.
+tool_ids:
+  - nmap_scan
+  - nmap_vuln_scan
+  - tcp_probe
+  - anon_service_probe
+  - httpx_probe
+  - http_request
+  - http_write_request
+  - searchsploit
+  - trufflehog
+  - trivy_scan
+  - trivy_k8s_scan
+  - kubectl
+  - kubectl_exploit
+  - pod_exec_enum
+  - k8s_sa_token_theft
+  - kube_hunter_enum
+  - kube_hunter_exploit
+  - nuclei
+  - interactsh
+  - cve_intel_enricher
+  - sensitive_file_probe
+  - unauth_datastore_probe
+  - registry_tag_enum
+  - artifact_repo_exposure_probe
+  - cicd_exposure_probe

@@ -1,0 +1,36 @@
+tool_id: dork_search_probe
+scope_param: query
+destructive: false
+
+description: >
+  Runs a search-engine dork query (e.g. 'site:example.com filetype:pdf',
+  'site:example.com inurl:admin', 'site:example.com intitle:"index of"')
+  via Google's Custom Search JSON API and returns the matching page
+  titles, URLs, and snippets. The query itself (including any
+  site:/filetype:/inurl:/intitle: operators) is built by you, the model
+  -- this tool does not impose a fixed dork list, mirroring gitdorker's
+  own free-text query parameter. Zero risk to the target: queries go to
+  the search engine's index, never to the target itself, so this finds
+  only what the target's own domain already has publicly indexed
+  (cached admin panels, exposed documents, old staging subdomains).
+  Requires GOOGLE_CSE_API_KEY and GOOGLE_CSE_CX environment variables
+  (an operator-configured Google Custom Search Engine scoped to search
+  the whole web, not just one site) -- returns a clear error if either
+  is unset, mirroring gitdorker's own GITHUB_TOKEN-gated pattern.
+
+parameters:
+  type: object
+  properties:
+    query:
+      type: string
+      description: >
+        The full dork query string, including any site:/filetype:/
+        inurl:/intitle: operators you want, e.g.
+        'site:example.com filetype:pdf confidential'.
+    num_results:
+      type: integer
+      description: "Number of results to request. Defaults to 10, hard-capped at 10 (Google CSE API's own per-call maximum)."
+    timeout:
+      type: integer
+      description: "Request timeout in seconds. Defaults to 10."
+  required: ["query"]

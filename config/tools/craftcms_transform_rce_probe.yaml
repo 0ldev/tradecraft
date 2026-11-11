@@ -1,0 +1,30 @@
+tool_id: craftcms_transform_rce_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes Craft CMS instances for critical pre-authentication Remote Code
+  Execution (CVE-2025-32432 / Jan 2026 disclosure). Tests unauthenticated
+  access to the /actions/assets/generate-transform endpoint using a safe diagnostic
+  Yii behavior handle object to check whether pre-auth action execution and
+  deserialization gadget handling are permitted without executing arbitrary
+  commands or writing files.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target IP, hostname, or base URL of the Craft CMS platform (e.g.,
+        'craft.example.com' or 'https://www.example.com').
+    host_header:
+      type: string
+      description: >
+        Optional custom HTTP Host header if required for virtual host routing.
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target

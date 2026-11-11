@@ -1,0 +1,35 @@
+tool_id: cloudenum
+required_binary: cloud_enum
+scope_param: target
+
+description: >
+  Enumerate public cloud storage buckets, containers, hosted apps, and databases across AWS, Azure, and Google Cloud (GCP) by permuting an organization keyword or target domain.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target organization domain, hostname, or keyword (e.g. 'example.com.br', 'https://example.com', or 'example'). The company keyword is derived from the root domain.
+    quickscan:
+      type: boolean
+      description: >
+        Whether to perform a fast quickscan by disabling heavy mutations and second-level brute-force. Defaults to true.
+    disable_aws:
+      type: boolean
+      description: >
+        Skip Amazon Web Services (AWS) S3 and App enumeration. Defaults to false.
+    disable_azure:
+      type: boolean
+      description: >
+        Skip Microsoft Azure Blob, Container, and Database enumeration. Defaults to false.
+    disable_gcp:
+      type: boolean
+      description: >
+        Skip Google Cloud Platform (GCP) Storage Bucket and App Engine enumeration. Defaults to false.
+    threads:
+      type: integer
+      description: >
+        Number of threads for HTTP brute-forcing. Defaults to 5.
+  required: ["target"]

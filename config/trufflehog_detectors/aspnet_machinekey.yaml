@@ -1,0 +1,59 @@
+# Custom trufflehog detectors (trufflehog >= 3.80's beta custom-regex
+# feature, confirmed against the real binary installed on CT 115,
+# v3.99.7) for ASP.NET <machineKey> element attributes leaked into a
+# scanned web.config/machine.config (or anything else trufflehog's
+# filesystem/git modes walk, e.g. a committed config in git history).
+#
+# One named regex per detector, deliberately -- trufflehog concatenates
+# every named regex's captured value (sorted by name) into a single Raw
+# string with no separator when a detector has more than one regex
+# entry. Confirmed directly against the real binary: a detector with
+# two named regexes does NOT surface two separate values, it produces
+# one merged, useless string. Four separate single-regex detectors
+# avoid that entirely, each with its own clean Raw value.
+#
+# Also confirmed directly against the real binary: a custom detector's
+# JSON line always reports DetectorName: "CustomRegex" -- the detector's
+# own `name` field only appears in ExtraData.name, not DetectorName.
+# tradecraft/adapters/trufflehog/parse.py reads ExtraData.name, not
+# DetectorName, to tell these four apart.
+#
+# "AutoGenerate,IsolateApps" (ASP.NET's own default/placeholder meaning
+# "no static key configured") is not hex and will never match these
+# regexes -- only a real static key value is ever captured here.
+detectors:
+  - name: ASPNETValidationKey
+    description: >
+      ASP.NET machineKey validationKey attribute -- a leaked static key
+      lets ysoserial.net forge a signed __VIEWSTATE (or Forms-auth
+      ticket) that the target will accept as genuine.
+    keywords:
+      - validationKey
+    regex:
+      key: 'validationKey\s*=\s*["\x27]([0-9A-Fa-f]{40,256})["\x27]'
+  - name: ASPNETDecryptionKey
+    description: >
+      ASP.NET machineKey decryptionKey attribute -- needed alongside
+      validationKey to forge an encrypted (not just signed) ViewState
+      payload.
+    keywords:
+      - decryptionKey
+    regex:
+      key: 'decryptionKey\s*=\s*["\x27]([0-9A-Fa-f]{16,64})["\x27]'
+  - name: ASPNETValidationAlgorithm
+    description: >
+      ASP.NET machineKey validation attribute -- the HMAC algorithm
+      (ysoserial.net's --validationalg) a forged payload must match.
+    keywords:
+      - validation
+    regex:
+      key: 'validation\s*=\s*["\x27](SHA1|HMACSHA256|HMACSHA384|HMACSHA512|MD5|3DES|AES)["\x27]'
+  - name: ASPNETDecryptionAlgorithm
+    description: >
+      ASP.NET machineKey decryption attribute -- the symmetric cipher
+      (ysoserial.net's --decryptionalg) a forged encrypted payload must
+      match.
+    keywords:
+      - decryption
+    regex:
+      key: 'decryption\s*=\s*["\x27](DES|3DES|AES)["\x27]'

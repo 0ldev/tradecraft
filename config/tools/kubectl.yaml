@@ -1,0 +1,27 @@
+tool_id: kubectl
+required_binary: kubectl
+scope_param: target
+destructive: false
+
+description: >
+  Enumerates authorization permissions and secrets from a Kubernetes API server
+  using a provided service account token or bearer token. Detection-shaped
+  read-only probe (destructive: false).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Kubernetes API server endpoint, e.g. '10.0.0.1:6443' or 'k8s.target.local:6443'.
+    token:
+      type: string
+      description: >
+        Service account JWT or bearer token to authenticate to the Kubernetes API server.
+    namespace:
+      type: string
+      description: >
+        Optional specific Kubernetes namespace to query. If omitted, the namespace is extracted
+        from the service account token claims or defaults to all namespaces.
+  required: ["target", "token"]

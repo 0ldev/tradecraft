@@ -1,0 +1,45 @@
+tool_id: linpeas
+required_binary: sshpass
+scope_param: target
+destructive: false
+
+description: >
+  Read-only Linux privilege escalation enumeration on a host already
+  reached via SSH: downloads the latest linpeas.sh release
+  (github.com/peass-ng/PEASS-ng) over an sshpass-driven ssh session and
+  pipes it straight into 'sh' on the remote host. Runs exactly one
+  authentication attempt with the single username/password pair
+  supplied -- never a spray, brute-force, or SSH-key auth mode. Parses
+  the output for SUID/SGID exploit-db matches (the literal '--->'
+  marker) and CVE-check findings (lines containing 'Vulnerable',
+  correctly excluding the always-true 'Vulnerable to CVE-XXXX ...
+  Yes/No' labels when the printed value is 'No', and the unrelated
+  'Vulnerable Packages' section title). An unreachable host or failed
+  SSH authentication is reported as a failed status, not a clean
+  0-finding result. Capped at a 300s process timeout and 200 returned
+  findings per call (with full count and a truncation flag); the
+  complete transcript is kept as evidence.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        SSH target host or 'host:port', e.g. '10.0.0.15' or
+        '10.0.0.15:2222'. The ssh client's own default port (22) applies
+        when no port is given.
+    ssh_user:
+      type: string
+      description: >
+        SSH username for the single authentication attempt. Required.
+    ssh_pass:
+      type: string
+      description: >
+        SSH password for the single authentication attempt. Required --
+        this tool only supports password authentication via sshpass, not
+        key-based auth.
+  required:
+    - target
+    - ssh_user
+    - ssh_pass

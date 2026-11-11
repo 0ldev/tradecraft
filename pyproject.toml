@@ -1,0 +1,39 @@
+[project]
+name = "tradecraft"
+version = "0.1.0"
+description = "LLM-driven security-testing agent: a single continuous reasoning loop over a small set of real tools, not a staged pipeline."
+requires-python = ">=3.11"
+dependencies = [
+    "litellm>=1.0.0",
+    "mcp>=1.0.0",  # litellm 1.106.x's completion() path imports this unconditionally
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.0",
+    "mmh3>=4.0.0",
+    "cryptography>=41.0.0",
+    "pexpect>=4.9.0",  # drives cupp's interactive Q&A (tradecraft/adapters/cupp/)
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+tradecraft = "tradecraft.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tradecraft*"]
+
+[tool.setuptools.package-data]
+tradecraft = ["skills/*.md", "prompts/*.md", "adapters/jwt_crack/*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

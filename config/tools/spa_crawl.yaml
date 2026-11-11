@@ -1,0 +1,32 @@
+tool_id: spa_crawl
+scope_param: target_url
+
+description: >
+  Load a URL in a real headless browser, then AUTOMATICALLY and
+  GENERICALLY fill every visible text-entry control found (search
+  boxes, text inputs, textareas -- never password fields) with a fixed
+  marker string and submit it, recording every resulting network
+  request (method, URL, non-boilerplate request headers, POST body, and
+  JSON body parameter names).
+  Finds API calls a JS-rendered SPA only constructs at runtime that a
+  static crawl (katana/gau) can't see. WARNING: this submits forms
+  indiscriminately -- it cannot tell a harmless search box from a
+  contact-form email field, newsletter signup, or password-reset
+  request, and WILL trigger that real side effect if one is among the
+  visible inputs on the page. Do not run this against a page you've
+  already identified as having a sensitive form whose submission you
+  want to control deliberately -- use playwright_engine's explicit
+  actions there instead.
+
+parameters:
+  type: object
+  properties:
+    target_url:
+      type: string
+      description: >
+        Full URL to load and interact with, e.g.
+        'https://apps.exampleauto.com.br'.
+    timeout_seconds:
+      type: integer
+      description: "Overall page-load/interaction timeout in seconds. Defaults to 45."
+  required: ["target_url"]

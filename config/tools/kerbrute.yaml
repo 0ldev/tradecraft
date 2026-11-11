@@ -1,0 +1,40 @@
+tool_id: kerbrute
+required_binary: kerbrute
+scope_param: target
+destructive: false
+
+description: >
+  Enumerates valid Active Directory usernames using Kerberos pre-authentication
+  (TGT requests) against a domain controller without generating logon failures
+  or account lockouts. Detection-shaped enumeration probe (destructive: false).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target Domain Controller (KDC) IP or hostname, e.g. '10.0.0.1' or 'dc01.corp.local'.
+    domain:
+      type: string
+      description: >
+        Target Active Directory domain name, e.g. 'corp.local' or 'contoso.com'.
+    wordlist:
+      type: string
+      enum: ["kerbrute-usernames", "kerbrute-usernames-medium", "kerbrute-usernames-large"]
+      description: >
+        Which bundled username wordlist to enumerate. Defaults to
+        'kerbrute-usernames'. 'kerbrute-usernames' (30 entries: administrator,
+        admin, guest, krbtgt, support, and similar AD service/admin account
+        names): fast first pass. 'kerbrute-usernames-medium' (500 entries,
+        from SecLists real-world username data): broader human-name coverage
+        for AD accounts typically based on real names. 'kerbrute-usernames-
+        large' (5000 entries, from the same source): thorough sweep. This
+        tool doesn't generate logon failures or lockouts, so a larger list
+        here carries none of the account-lockout-risk tradeoff a bigger
+        password list would.
+    safe:
+      type: boolean
+      description: >
+        Enable safe mode to abort immediately if any account lockout is observed (default: true).
+  required: ["target", "domain"]

@@ -1,0 +1,24 @@
+tool_id: openapi_fuzz
+required_binary: null
+scope_param: target
+description: >
+  Probes authorization boundaries and generates schema-guided API requests
+  against endpoints discovered in an OpenAPI/Swagger definition.
+  Flags unauthenticated administrative endpoints and 500 server stack-trace leaks.
+parameters:
+  type: object
+  required:
+    - target
+  properties:
+    target:
+      type: string
+      description: Target API base URL (e.g. 'https://api.example.com').
+    spec_url:
+      type: string
+      description: URL to the raw OpenAPI/Swagger JSON definition (e.g. 'https://api.example.com/swagger/v1/swagger.json').
+    spec_content:
+      type: string
+      description: Raw JSON string of the OpenAPI spec, if already retrieved by openapi_spec_discovery_probe.
+    auth_header:
+      type: string
+      description: "Optional Authorization header string (e.g. 'Authorization: Bearer <token>')."

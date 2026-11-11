@@ -1,0 +1,31 @@
+tool_id: jwt_crack
+scope_param: jwt
+destructive: false
+
+description: >
+  Offline HMAC-secret brute force for a JWT signed with HS256, HS384,
+  or HS512 -- no network contact with any target. Decodes the token's
+  header to confirm the algorithm is HMAC-based (RS/ES/PS-family
+  algorithms are asymmetric and cannot be cracked this way; the tool
+  reports this as a reason, not an error, rather than attempting
+  anything). Tries each entry of a caller-supplied wordlist, or a
+  built-in ~200-entry list of common default/weak secrets if none is
+  given, recomputing the HMAC signature with Python's own hmac/hashlib
+  and comparing to the token's actual signature. Hard-capped at 10,000
+  wordlist entries per call.
+
+parameters:
+  type: object
+  properties:
+    jwt:
+      type: string
+      description: >
+        The full JWT to attack, e.g.
+        'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.<sig>'.
+    wordlist:
+      type: string
+      description: >
+        Optional newline-separated candidate secrets. If omitted, uses
+        the tool's built-in common-secrets list. Capped at 10,000
+        entries -- entries past the cap are dropped, not an error.
+  required: ["jwt"]

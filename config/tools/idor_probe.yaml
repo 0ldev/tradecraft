@@ -1,0 +1,43 @@
+tool_id: idor_probe
+scope_param: target
+
+description: >
+  Probe an endpoint for Insecure Direct Object Reference (IDOR / BOLA) and unauthorized
+  data leakage by systematically varying an object identifier (in query parameters or
+  URL path) and performing boilerplate-stripping differential analysis. Strictly GET-only
+  and hard-capped at 3 candidate probes to keep request volume benign (never bans).
+  Extracts the exact differing lines or JSON keys between baseline and candidate responses
+  so you can verify whether sensitive customer/order/account data is exposed without
+  authentication or across IDs.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL containing an object identifier to probe, e.g.
+        'https://example.com/api/v1/orders?id=105' or 'https://example.com/users/105'.
+    param:
+      type: string
+      description: >
+        Optional name of the parameter to vary (e.g. 'id', 'order_id', 'doc_id'). If
+        omitted, automatically identifies the object parameter from query parameters or
+        the numeric path segment.
+    candidate_values:
+      type: string
+      description: >
+        Optional comma-separated list of candidate IDs to test (e.g. '106,104,1'). If
+        omitted and the baseline ID is an integer, automatically steps adjacent values
+        [baseline+1, baseline-1, 1] (capped at 3 probes).
+    headers:
+      type: string
+      description: >
+        Optional custom HTTP headers separated by newlines (e.g.
+        'Authorization: Bearer token\nCookie: session=xyz').
+    timeout:
+      type: integer
+      description: >
+        Request timeout in seconds per attempt. Defaults to 10.
+  required:
+    - target

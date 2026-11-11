@@ -1,0 +1,36 @@
+tool_id: xxe_probe
+scope_param: target
+destructive: false
+
+description: >
+  Sends one fixed external-entity XML payload to an endpoint that
+  accepts an XML request body, using the caller-supplied oob_domain
+  (from interactsh's own 'generate' action) as the entity's SYSTEM
+  identifier. Confirming a hit requires polling interactsh separately
+  afterward and matching the callback to this call's own oob_domain and
+  timing -- this tool cannot itself confirm anything; a 2xx/4xx/5xx
+  response from target proves only that the server accepted and parsed
+  something, not that the entity resolved. Single payload, single
+  request, destructive: false.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL to POST the XML payload to, e.g.
+        'https://example.com/api/import'.
+    oob_domain:
+      type: string
+      description: >
+        An interactsh payload domain already generated via the
+        interactsh tool's 'generate' action, e.g. 'abc123.oast.me'.
+        Required.
+    content_type:
+      type: string
+      description: Content-Type header to send. Defaults to 'application/xml'.
+    timeout:
+      type: integer
+      description: Request timeout in seconds. Defaults to 10.
+  required: ["target", "oob_domain"]

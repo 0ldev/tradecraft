@@ -1,0 +1,19 @@
+tool_id: kiterunner
+required_binary: kr
+scope_param: target
+description: "Discovers hidden API endpoints, Swagger/OpenAPI specifications, and REST routes on target HTTP/HTTPS web services using Kitebuilder routing schemas."
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: "Target URL or host to scan for API routes (e.g. 'https://example.com' or 'https://api.example.com')."
+    wordlist:
+      type: string
+      enum: ["api-routes.kite"]
+      description: >
+        Kitebuilder routing schema used to reconstruct hidden REST API
+        routes and parameter expectations. The only bundled option; also
+        the default.
+  required:
+    - target

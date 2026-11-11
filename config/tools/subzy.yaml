@@ -1,0 +1,19 @@
+tool_id: subzy
+required_binary: subzy
+scope_param: target
+
+description: >
+  Check for subdomain takeover vulnerabilities on candidate subdomains or domains by identifying dangling CNAME records and unattached cloud services (AWS S3, GitHub Pages, CloudFront, Uptimerobot, etc.).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Domain or comma-separated list of subdomains to test for takeover, e.g. 'sub1.example.com,sub2.example.com' or 'example.com'.
+    concurrency:
+      type: integer
+      description: >
+        Number of concurrent checks to run (default: 10).
+  required: ["target"]

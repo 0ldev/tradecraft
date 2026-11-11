@@ -1,0 +1,31 @@
+tool_id: webshell_upload
+scope_param: target
+destructive: true
+destructive_categories:
+  - code_execution
+  - persistent_artifact
+
+description: >
+  Looks for an HTML file-upload form on the target page and POSTs a small PHP webshell
+  under up to 6 extension bypass variants (.php, .php5, .phtml, .php.jpg, .PHp, %00.php).
+  If an upload is echoed back, requests the planted file with a harmless 'id' command and
+  reports a plant only when the real command output comes back. A successful run leaves a
+  persistent webshell on the target that must be removed afterward, so the result reports
+  the planted path at the top level with a cleanup alert. Classified as destructive: true;
+  available only when --allow-destructive is specified. Assumes PHP serves the uploaded
+  file; a non-PHP target just reports no execution.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL of the page that contains (or is expected to contain) the file-upload form,
+        e.g. 'https://target.com/profile'. A bare host is treated as http.
+    cookie:
+      type: string
+      description: >
+        Optional Cookie header value for an authenticated session needed to reach the
+        upload form, e.g. 'session=abc123'.
+  required: ["target"]

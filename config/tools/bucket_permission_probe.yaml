@@ -1,0 +1,40 @@
+tool_id: bucket_permission_probe
+scope_param: buckets
+destructive: false
+
+description: >
+  Checks unauthenticated list/read permissions on candidate cloud
+  storage buckets/containers (AWS S3, GCP Cloud Storage, Azure Blob
+  Storage) using each provider's own public REST API -- no credential
+  needed or used. For AWS/GCP, tests whether the bucket name itself is
+  publicly listable. For Azure, which has no global bucket namespace
+  (a container name is scoped to its own storage account), tests a
+  bounded list of common container-name guesses against the given
+  account name. Candidate names are expected to come from cloudenum's
+  own findings. Read-only: no object is ever written.
+
+parameters:
+  type: object
+  properties:
+    provider:
+      type: string
+      description: "'aws', 'gcp', or 'azure'. Required."
+    buckets:
+      type: string
+      description: >
+        Comma-separated candidate bucket names (aws/gcp) or storage
+        account names (azure), e.g. 'examplecorp-backups,examplecorp-prod'
+        or 'examplecorpstorage' for azure. Accepts either a bare name or
+        a full hostname (e.g. 'examplecorp-backups.s3.amazonaws.com') --
+        the bucket/account name is extracted automatically.
+    azure_containers:
+      type: string
+      description: >
+        Azure only: comma-separated container-name guesses to try
+        against each account. Defaults to a built-in list of 10 common
+        names ('data','backup','files','public','container','media',
+        'uploads','docs','images','$root') if omitted.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["provider", "buckets"]

@@ -1,0 +1,35 @@
+tool_id: trivy_scan
+required_binary: trivy
+scope_param: target
+destructive: false
+
+description: >
+  Read-only vulnerability scan of one container image reference via Aqua
+  Trivy (`trivy image`). Pulls the image's metadata and packages from the
+  registry (never from a local Docker/Podman store) and reports known CVEs
+  in OS packages and language dependencies. Scans only: it never pushes,
+  retags, or changes the image or registry. Runs with a 600s process cap
+  (trivy's own 540s timeout sits inside it). Returns vulnerabilities sorted
+  by severity (CRITICAL first), capped at 100 with a truncation flag and
+  per-severity counts. The full report is kept as evidence. Public images
+  need no credential; a private registry requires 'username:password'.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Container image reference to scan, in the form
+        '[registry[:port]/]repository[:tag]' or
+        '[registry[:port]/]repository@sha256:digest' (e.g. 'nginx:1.25',
+        'gcr.io/project/image:tag', 'registry.example.com/app@sha256:...').
+        Must be pullable from the registry, not a local image name.
+    credential:
+      type: string
+      description: >
+        Optional registry credential as 'username:password', only needed
+        for a private registry (e.g. a GCP service-account 'user' with a key
+        as password, or an ECR/ACR token pair). Split on the first colon, so
+        the password may contain colons. Omit for public images.
+  required: ["target"]

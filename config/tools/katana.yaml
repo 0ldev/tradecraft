@@ -1,0 +1,31 @@
+tool_id: katana
+required_binary: katana
+scope_param: target
+
+description: >
+  Crawl a web application using Katana to discover endpoints, links, and URL parameters from HTML and JavaScript sources.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL or hostname to crawl (e.g. 'https://target.local' or 'target.local').
+    depth:
+      type: integer
+      description: >
+        Maximum crawl recursion depth (default 2).
+    js_crawl:
+      type: boolean
+      description: >
+        Enable endpoint parsing and crawling inside JavaScript files (default true).
+    crawl_duration:
+      type: integer
+      description: >
+        Maximum crawling duration in seconds (default 15).
+    headless:
+      type: boolean
+      description: >
+        Enable headless browser crawling using Chromium to render JavaScript SPAs and dynamic DOM events (default false).
+  required: ["target"]

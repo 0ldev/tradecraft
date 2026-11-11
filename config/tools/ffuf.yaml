@@ -1,0 +1,41 @@
+tool_id: ffuf
+required_binary: ffuf
+scope_param: target
+
+description: >
+  Discover hidden web paths, directories, and files (content fuzzing) on a target HTTP/HTTPS server using a wordlist.
+  Use once a web server is confirmed live to uncover administrative interfaces, backup files, configuration files, and API endpoints.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL or host to fuzz, e.g. 'https://target.local' or 'https://target.local/FUZZ'.
+        If 'FUZZ' keyword is omitted, it will automatically be appended to the target path.
+    wordlist:
+      type: string
+      enum: ["common", "small", "admin", "api"]
+      description: >
+        Which bundled wordlist to fuzz with. Defaults to 'common'.
+        'common' (SecLists Discovery/Web-Content/common.txt, 4751 entries):
+        broad general-purpose first pass. 'small' (30 entries, the top of
+        'common' by frequency): minimal, fast pass -- use against rate-
+        limited or shared-hosting targets to keep request volume low.
+        'admin' (17 entries): admin/management panel path names
+        specifically. 'api' (19 entries): API path naming conventions
+        (api/v1, v2, ...).
+    extensions:
+      type: string
+      description: >
+        Comma-separated list of file extensions to append to each word (e.g. 'php,html,txt' or '.php,.bak'). Defaults to none.
+    match_codes:
+      type: string
+      description: >
+        Comma-separated HTTP status codes to match, or 'all'. Defaults to 'all'.
+    filter_codes:
+      type: string
+      description: >
+        Comma-separated HTTP status codes to filter out. Defaults to '404'.
+  required: ["target"]

@@ -1,0 +1,31 @@
+tool_id: nuclei
+required_binary: nuclei
+scope_param: target
+
+description: >
+  Scan a target using Nuclei to detect known vulnerabilities, CVEs, misconfigurations, and technology signatures with automated templates.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL or hostname to scan (e.g. 'https://target.local' or 'target.local').
+    tags:
+      type: string
+      description: >
+        Comma-separated template tags to run (e.g. 'cve,misconfig,exposure,tech'). Defaults to 'cve,misconfig,exposure,tech'.
+    severity:
+      type: string
+      description: >
+        Comma-separated severity levels to match (e.g. 'low,medium,high,critical' or 'info,low,medium'). Defaults to 'low,medium,high,critical'.
+    templates:
+      type: string
+      description: >
+        Specific template ID(s) or path(s) to execute (e.g. 'cve-2021-44228' or 'http/technologies/'). Defaults to none (all matching tagged templates).
+    limit:
+      type: integer
+      description: >
+        Maximum number of findings to return directly in the response (default: 25). Critical and high severity findings are prioritized and never omitted.
+  required: ["target"]

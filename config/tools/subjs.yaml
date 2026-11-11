@@ -1,0 +1,17 @@
+tool_id: subjs
+required_binary: subjs
+scope_param: target
+
+description: >
+  Crawls a URL for JavaScript file references (<script src>, inline
+  module imports) and returns every discovered JS file URL, including
+  ones carrying a query string (e.g. cache-busting ?v=1.2.3 suffixes).
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL to crawl for JS references, e.g. 'https://examplepaint.com.br'.
+  required: ["target"]

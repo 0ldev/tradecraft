@@ -1,0 +1,43 @@
+tool_id: pacu_enum
+required_binary: pacu
+scope_param: target
+destructive: false
+
+description: >
+  Read-only AWS enumeration via Pacu, using an access key already obtained
+  some other way (e.g. trufflehog, a cloud metadata-endpoint probe). Three
+  actions: 'enum_permissions' (IAM permission enumeration for the
+  credential's own user/role), 'privesc_scan' (Pacu's offline
+  privilege-escalation method scan, run with --scan-only -- lists methods
+  the credential's known permissions would allow, attempts none of them),
+  and 's3_list' (lists accessible S3 bucket names and object keys only --
+  downloads nothing). Runs entirely inside a disposable HOME directory per
+  call so Pacu's own session database never persists past this one
+  invocation; every persisted field has the supplied credential redacted.
+  A real privilege-escalation attempt or S3 object download is a separate,
+  destructive tool (pacu_exploit), not this one.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Identifying label for the AWS account/context being enumerated
+        (e.g. the host or service where this credential was found, or an
+        account alias). Used only to key evidence and facts -- Pacu itself
+        is told nothing about it; which AWS account is actually reached is
+        determined entirely by the credential.
+    action:
+      type: string
+      description: >
+        Which read-only Pacu action to run: 'enum_permissions',
+        'privesc_scan', or 's3_list'.
+    credential:
+      type: string
+      description: >
+        AWS credential as 'AccessKeyId:SecretAccessKey' or
+        'AccessKeyId:SecretAccessKey:SessionToken' (include the session
+        token for temporary/STS credentials, e.g. ones recovered from an
+        instance metadata endpoint).
+  required: ["target", "action", "credential"]

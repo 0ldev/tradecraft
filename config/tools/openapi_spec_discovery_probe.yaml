@@ -1,0 +1,29 @@
+tool_id: openapi_spec_discovery_probe
+scope_param: target
+destructive: false
+
+description: >
+  GETs a fixed, bounded list of common OpenAPI/Swagger spec paths
+  (/swagger.json, /swagger/v1/swagger.json, /v2/api-docs, /v3/api-docs,
+  /openapi.json, /openapi.yaml, /.well-known/openapi.yaml, /api-docs,
+  /api/swagger.json, /api/openapi.json) and parses any 200 response that
+  decodes as JSON or YAML with both a 'paths' key and a 'swagger' or
+  'openapi' version key. Turns slow brute-force endpoint discovery
+  (ffuf/kiterunner) into instant, complete attack-surface enumeration --
+  including undocumented admin routes that are still listed in the spec
+  even if not linked anywhere on the site. Flags any documented path
+  containing 'admin', 'internal', 'debug', or 'test' as of interest.
+  Zero precondition, GET-only.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL or host to check, e.g. 'https://api.example.com' or
+        'api.example.com:8443'. A bare host is treated as https.
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10."
+  required: ["target"]

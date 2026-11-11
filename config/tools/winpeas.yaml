@@ -1,0 +1,56 @@
+tool_id: winpeas
+required_binary: wmiexec.py
+scope_param: target
+destructive: false
+
+description: >
+  Read-only Windows privilege escalation enumeration via Impacket's
+  wmiexec.py, requiring already-obtained domain credentials: downloads
+  the latest winPEASany.exe release (github.com/peass-ng/PEASS-ng) to
+  the target's %TEMP% over a single PowerShell one-liner, executes it,
+  then deletes it. Runs exactly one authentication attempt with the
+  single credential pair supplied -- never a spray or brute-force.
+  Parses winPEASany's own '[!]'/'(!)'/'(!CHECK!)' finding markers plus a
+  keyword fallback (Unquoted Service Path, Modifiable Service, Weak
+  Registry Permissions, DLL Hijacking, Scheduled Task, Startup Folder,
+  SeImpersonate, SeAssignPrimaryToken) for releases or inline text that
+  omit an explicit marker. An authentication failure
+  (STATUS_LOGON_FAILURE, STATUS_ACCESS_DENIED) or an unhandled
+  wmiexec.py exception is reported as a failed status, not a clean
+  0-finding result. Capped at a 600s process timeout and 200 returned
+  findings per call (with full count and a truncation flag); the
+  complete transcript is kept as evidence.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target Windows host IP address or hostname, e.g. '10.0.0.20' or
+        'dc01.corp.local'. wmiexec.py also uses this value for its own
+        '-dc-ip' argument.
+    domain:
+      type: string
+      description: >
+        Active Directory domain to authenticate to, e.g. 'corp.local'.
+        Required.
+    username:
+      type: string
+      description: >
+        Username for the single authentication attempt. Required.
+    password:
+      type: string
+      description: >
+        Plaintext password for the authentication attempt. Mutually
+        exclusive with hashes. Exactly one of password or hashes is
+        required.
+    hashes:
+      type: string
+      description: >
+        NTLM hash for pass-the-hash ('LM:NTHASH' or 'NTHASH'), used
+        instead of password. Mutually exclusive with password.
+  required:
+    - target
+    - domain
+    - username

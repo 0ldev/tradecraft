@@ -1,0 +1,30 @@
+# Model-facing contract for the nmap_scan tool. The implementation
+# (tradecraft/tools/nmap_scan.py) only implements run() -- everything the
+# model is told, and everything about how the loop treats this tool
+# (required binary, which param is a scope-checked target), lives here.
+# A completeness test (tests/test_tool_schema_completeness.py) checks this
+# file's `parameters` against the real run() signature in both directions.
+
+tool_id: nmap_scan
+required_binary: nmap
+scope_param: target
+
+description: >
+  Scan a host for open TCP ports and the service/version running on each.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host or IP to scan, e.g. '10.0.0.5' or 'target.local'. A
+        'host:port' form pins the scan to that one port.
+    depth:
+      type: string
+      enum: ["quick", "standard"]
+      description: >
+        'quick' = top 100 ports, no version detection, fast. 'standard'
+        (default) = top 1000 ports with service/version detection (-sV),
+        slower but much more useful before deciding what to attack.
+  required: ["target"]

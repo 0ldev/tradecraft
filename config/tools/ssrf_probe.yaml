@@ -1,0 +1,58 @@
+tool_id: ssrf_probe
+scope_param: target
+destructive: false
+
+description: >
+  Tests Server-Side Request Forgery via two sink shapes form_fuzzer
+  does not cover: a JSON request body field, and a request header the
+  backend may forward into its own outbound call. Injects each
+  candidate internal_url preset (AWS/Azure/GCP instance-metadata
+  endpoints) at the given injection point, plus the caller-supplied
+  oob_domain (from interactsh's own 'generate' action) for blind
+  confirmation when the response never reflects anything. Read-only:
+  one request per preset per injection point, no state mutation.
+  Confirming a blind hit requires polling interactsh separately
+  afterward and matching the callback to this call's own oob_domain.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL to send the request to, e.g.
+        'https://example.com/api/fetch-preview'.
+    method:
+      type: string
+      description: >
+        HTTP method to use: 'GET' or 'POST'. Defaults to 'POST' when
+        inject_location is 'json_body', otherwise 'GET'.
+    inject_location:
+      type: string
+      description: >
+        Where to inject the candidate internal URL: 'json_body' (needs
+        json_body_template) or 'header' (needs header_name). Required.
+    json_body_template:
+      type: string
+      description: >
+        A JSON object as a string with one field's value set to the
+        literal placeholder '__SSRF__', e.g.
+        '{"callback_url": "__SSRF__", "name": "test"}'. Required when
+        inject_location is 'json_body'.
+    header_name:
+      type: string
+      description: >
+        Header name to inject the candidate internal URL into, e.g.
+        'X-Forwarded-Host'. Required when inject_location is 'header'.
+    oob_domain:
+      type: string
+      description: >
+        An interactsh payload domain already generated via the
+        interactsh tool's 'generate' action, e.g. 'abc123.oast.me'.
+        Optional -- if given, one extra attempt per injection point
+        uses 'http://{oob_domain}/ssrf' instead of a metadata preset,
+        for blind confirmation. Poll interactsh separately afterward.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target", "inject_location"]

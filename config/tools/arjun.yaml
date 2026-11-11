@@ -1,0 +1,27 @@
+tool_id: arjun
+required_binary: arjun
+scope_param: target
+
+description: >
+  Discover hidden HTTP parameters (GET query parameters, POST data, JSON, XML) on target web endpoints using differential response analysis.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target URL or hostname to scan for parameters (e.g. 'https://examplepaint.com.br' or 'examplepaint.com.br').
+    path:
+      type: string
+      description: >
+        URL path or endpoint to test for parameters (e.g. '/' or '/frontend/soluttoform2.php'). Defaults to '/'.
+    method:
+      type: string
+      description: >
+        HTTP method to probe: 'GET', 'POST', 'JSON', or 'XML'. Defaults to 'GET'.
+    wordlist:
+      type: string
+      description: >
+        Parameter wordlist size: 'small' (top ~800 common parameters; recommended for direct origins and shared hosting to prevent firewall rate-limiting), 'medium' (~10,000 parameters; for CDN-backed targets), or 'large' (~25,000 parameters). Defaults to 'small'.
+  required: ["target"]

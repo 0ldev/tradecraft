@@ -1,0 +1,15 @@
+tool_id: smuggler
+required_binary: python3
+scope_param: target
+description: >
+  HTTP request smuggling and desynchronization verification tool.
+  Probes target servers with mutation-based CL.TE, TE.CL, and TE.TE payloads
+  to detect reverse-proxy / backend desync vulnerabilities.
+parameters:
+  type: object
+  required:
+    - target
+  properties:
+    target:
+      type: string
+      description: Target HTTP or HTTPS URL to test for request smuggling (e.g. 'https://example.com/').

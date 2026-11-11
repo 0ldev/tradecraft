@@ -1,0 +1,27 @@
+tool_id: coercer
+required_binary: coercer
+scope_param: target
+description: >
+  Scans Windows endpoints to detect remotely coercible authentication RPC methods
+  (e.g. MS-EFSR / PetitPotam, MS-RPRN / PrinterBug, MS-DFSNM).
+  Used to identify targets susceptible to NTLM relay and AD CS domain escalation.
+parameters:
+  type: object
+  required:
+    - target
+  properties:
+    target:
+      type: string
+      description: Target Windows hostname or IP address.
+    domain:
+      type: string
+      description: Active Directory domain name.
+    username:
+      type: string
+      description: Active Directory username.
+    password:
+      type: string
+      description: Optional password for user authentication.
+    hashes:
+      type: string
+      description: Optional LM:NT or NT hash for pass-the-hash.

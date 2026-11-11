@@ -1,0 +1,56 @@
+tool_id: deserialization_probe
+required_binary: java
+scope_param: target
+destructive: true
+destructive_categories:
+  - code_execution
+
+description: >
+  Confirms a Java deserialization RCE sink (a java.io ObjectInputStream reading
+  untrusted input -- a session cookie, header, or POST body starting with the
+  0xACED0005 Java serialization magic) by generating a ysoserial gadget-chain
+  payload whose embedded command is an out-of-band DNS lookup against an
+  interactsh domain the model must already have generated (via interactsh's
+  'generate' action), then firing that payload at up to 4 candidate injection
+  points in sequence: either one explicit carrier, or else the 3 most common
+  Java session-cookie names plus one raw application/x-java-serialized-object
+  POST body. Reports only what was attempted (gadget chain, carriers,
+  per-carrier HTTP status) -- it cannot itself confirm execution, since a
+  deserialization sink does not echo command output into the HTTP response.
+  Confirming a hit requires polling interactsh separately afterward and
+  matching the callback to this call's own oob_domain and timing. Classified
+  as destructive: true (a successful chain is real, unconfirmed-blast-radius
+  remote code execution on the target); available only when --allow-destructive
+  is specified. Requires a Java runtime and a local ysoserial.jar on this host.
+  Targets .NET ViewState deserialization (a different gadget-chain ecosystem,
+  ysoserial.net) are out of scope for this tool.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        URL to inject the payload against, e.g. 'https://example.com/api/session'.
+        A bare host is treated as http.
+    oob_domain:
+      type: string
+      description: >
+        An interactsh payload domain already generated via the interactsh
+        tool's 'generate' action, e.g. 'abc123.oast.me'. The ysoserial
+        payload's embedded command resolves this domain; poll interactsh
+        separately afterward to check for the callback.
+    payload_type:
+      type: string
+      description: >
+        ysoserial gadget-chain name to generate, e.g. 'CommonsCollections6'
+        (default), 'CommonsCollections5', 'Jdk7u21', or 'Spring1'. Matches a
+        gadget library confirmed (or suspected, e.g. from a stack trace or
+        dependency fingerprint) present on the target's classpath.
+    carrier:
+      type: string
+      description: >
+        Optional explicit injection point: 'cookie:<name>', 'header:<name>',
+        or 'body' (raw POST), e.g. 'cookie:JSESSIONID'. When omitted, probes
+        the 3 default session-cookie names plus a raw body in sequence.
+  required: ["target", "oob_domain"]

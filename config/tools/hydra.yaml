@@ -1,0 +1,51 @@
+tool_id: hydra
+destructive: true
+destructive_categories:
+  - account_lockout_risk
+required_binary: hydra
+scope_param: target
+
+description: >
+  Performs targeted, bounded credential brute-force testing against network services
+  (SSH, FTP, MySQL, Postgres, RDP, HTTP basic-auth, HTTP POST forms) using Hydra.
+  Classified as destructive: true because repeated invalid logins can trigger account
+  lockout on target systems. Each call is bounded by max_attempts (hard-capped at 100
+  combinations), and every host/port/service/form endpoint also has a fixed total
+  attempt budget shared across the whole engagement (see docs/policy.md) -- once that
+  budget is spent, further calls against the same endpoint run 0 attempts regardless
+  of max_attempts. The result's budget field reports what remains. Reported hits are
+  unverified candidates until confirmed.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target host, host:port, or URL (e.g. '192.168.1.50', 'app.local:22', or 'http://app.local').
+    service:
+      type: string
+      description: >
+        Target service or protocol (e.g. 'ssh', 'ftp', 'mysql', 'postgres', 'http-post-form', 'http-get', 'rdp').
+        Defaults to 'ssh' (or 'http-post-form'/'https-post-form' if target is an HTTP/HTTPS URL). An http-*
+        module is automatically used as its https-* counterpart when target's scheme (or port 443/8443) is
+        TLS, so a plain 'http-post-form' value against an 'https://' target still attacks it over TLS.
+    username:
+      type: string
+      description: >
+        Single username or comma-separated list of usernames to test. If omitted, a small default list is used.
+    password_list:
+      type: string
+      description: >
+        Comma-separated candidate passwords to test. If omitted, a small built-in list of top credentials is used.
+    form_details:
+      type: string
+      description: >
+        Optional form definition for http-post-form (e.g. '/login.php:user=^USER^&pass=^PASS^:F=invalid').
+    max_attempts:
+      type: integer
+      description: >
+        Maximum credential combinations (users * passwords) to attempt in this call. Hard-capped at 100 per call.
+        Also clamped to whatever remains of the endpoint's total engagement budget (see description above).
+        Defaults to 50.
+  required: ["target"]

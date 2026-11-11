@@ -1,0 +1,38 @@
+tool_id: cicd_exposure_probe
+scope_param: target
+destructive: false
+
+description: >
+  Checks for unauthenticated access to two well-known CI/CD orchestrators
+  -- Argo CD and TeamCity. Unauthenticated CI/CD access is a supply-chain
+  RCE blast radius: attacker-controlled pipeline visibility (and
+  sometimes write access) reaches everything that pipeline deploys. Each
+  check is "one GET fingerprint, one GET to a normally-gated endpoint":
+  Argo CD's /api/version fingerprints the server, then /api/v1/applications
+  with no auth -- a 200 with a real application list (instead of the
+  expected 401/403) means the 'anonymous' RBAC policy grants read access.
+  TeamCity's /app/rest/server fingerprints the server, then the
+  /guestAuth/app/rest/projects prefix -- which only answers at all when
+  "Allow guest login" is enabled server-wide -- a 200 there exposes the
+  real project tree. Performs only anonymous GETs; never submits
+  credentials, never triggers a build or sync, never writes anything.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Base URL or host of the candidate CI/CD server, e.g.
+        'https://argocd.example.com' or 'teamcity.example.com:8111'. A
+        bare host is treated as https.
+    service:
+      type: string
+      description: >
+        'argocd', 'teamcity', or 'auto' (default: checks both -- there
+        are only two services here, so 'auto' does not narrow the way
+        unauth_datastore_probe's does across nine).
+    timeout:
+      type: integer
+      description: "Per-request timeout in seconds. Defaults to 10, capped at 20."
+  required: ["target"]

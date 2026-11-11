@@ -1,0 +1,24 @@
+tool_id: cloudfox
+required_binary: cloudfox
+scope_param: target
+description: >
+  Situational awareness and offensive attack path discovery for cloud environments (AWS, Azure, GCP).
+  Surfaces exploitable attack paths: IAM privilege escalation, IMDSv1 instances,
+  public storage buckets, exposed Lambda function URLs, and credential loot.
+parameters:
+  type: object
+  required:
+    - provider
+  properties:
+    provider:
+      type: string
+      description: Cloud provider to enumerate ('aws', 'azure', or 'gcp'). Defaults to 'aws'.
+    command:
+      type: string
+      description: Specific check or command ('permissions', 'instances', 'buckets', 'all-checks'). Defaults to 'permissions'.
+    target:
+      type: string
+      description: Target cloud account ID, project ID, or environment name.
+    credentials:
+      type: string
+      description: Optional credentials in 'AccessKey:SecretKey[:SessionToken]' format.

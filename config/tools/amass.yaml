@@ -1,0 +1,21 @@
+tool_id: amass
+required_binary: amass
+scope_param: target
+
+description: >
+  Active subdomain enumeration via Amass (DNS brute-force, certificate
+  transparency, and active resolution). Bounded to a hard internal
+  timeout (Amass's own -timeout plus a safety-margin subprocess
+  timeout) -- without this bound, Amass can run for 50+ minutes against
+  a single domain with no output; a call that hits the timeout is
+  killed and reports that explicitly, it is never still working after
+  that point.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Apex domain to enumerate, e.g. 'examplepaint.com.br'.
+  required: ["target"]

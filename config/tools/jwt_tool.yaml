@@ -1,0 +1,27 @@
+tool_id: jwt_tool
+required_binary: python3
+scope_param: target_url
+description: >
+  Performs advanced automated JWT tampering, signature bypass, and header injection tests
+  (e.g. alg:none, signature stripping, key confusion, kid path traversal/injection)
+  against an HTTP target endpoint or directly generates forged token variants.
+parameters:
+  type: object
+  required:
+    - token
+  properties:
+    token:
+      type: string
+      description: The raw JSON Web Token (JWT) string to test and tamper with.
+    target_url:
+      type: string
+      description: Optional target URL where the token is verified (e.g. 'https://api.example.com/api/v1/user').
+    header_name:
+      type: string
+      description: "HTTP header name to carry the token when probing target_url. Defaults to 'Authorization'."
+    header_prefix:
+      type: string
+      description: "Prefix before the token in the header. Defaults to 'Bearer '."
+    canary_claim:
+      type: string
+      description: Optional payload claim to modify or inject (e.g. 'admin=true' or 'role=administrator').

@@ -1,0 +1,49 @@
+tool_id: response_security_audit
+scope_param: target
+destructive: false
+
+description: >
+  Fetches a URL ONCE and audits that single response for three things,
+  replacing the former separate cookie_security_check, security_header_check,
+  and sri_check tools (all three used to fetch the same URL independently
+  for different attributes of the identical response).
+
+  (1) Cookies: every Set-Cookie header is checked for missing Secure,
+  HttpOnly, and SameSite flags -- a missing Secure flag means the cookie
+  can be sent over plaintext HTTP, missing HttpOnly means injected/XSS'd
+  JavaScript can read it, and missing or weak SameSite weakens CSRF
+  protection. Every cookie found is reported; a session/auth-name
+  heuristic (session, sess, auth, token, sid, csrf, and similar
+  substrings) only affects the reported severity, not which cookies get
+  reported.
+
+  (2) Headers: the six core HTTP security response headers
+  (Strict-Transport-Security, Content-Security-Policy,
+  X-Content-Type-Options, X-Frame-Options, Referrer-Policy,
+  Permissions-Policy) are checked for presence; the first four are also
+  scored for directive/value strength (CSP for 'unsafe-inline',
+  'unsafe-eval', wildcard or data: sources, and missing frame-ancestors
+  or object-src; HSTS for max-age below 31536000 or missing
+  includeSubDomains; X-Content-Type-Options for any value other than
+  nosniff; X-Frame-Options for any value other than DENY or SAMEORIGIN).
+  Referrer-Policy and Permissions-Policy are presence-only.
+
+  (3) Subresource Integrity (SRI): every <script src=...> and
+  <link rel="stylesheet" href=...> tag that loads from a DIFFERENT
+  origin than the page itself is checked for a missing "integrity"
+  attribute -- a cross-origin script/stylesheet with no integrity hash
+  means a compromise of that third-party host silently injects code/CSS
+  into this page. Same-origin assets are not reported.
+
+  A failed or unreachable request is returned as an error, not as
+  missing/clean results for any of the three checks.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL to fetch and audit, e.g.
+        'https://examplepaint.com.br/login_admin/area_restrita'.
+  required: ["target"]

@@ -1,0 +1,29 @@
+tool_id: jupyter_exposure_probe
+scope_param: target
+destructive: false
+
+description: >
+  Checks whether a Jupyter notebook server or JupyterHub is reachable
+  without a token. Detection-only: performs at most two anonymous GETs per
+  service and never creates a notebook, starts a kernel, or executes code.
+  For Jupyter it fingerprints /api (expects JSON with a 'version' field)
+  and then requests /api/kernels -- a 200 there, even with an empty list,
+  proves the API is reachable without authentication. If /api is not a
+  Jupyter fingerprint it tries the JupyterHub equivalents /hub/api and
+  /hub/api/users. Reports the service, version, whether authentication is
+  required, and how many kernels/users are exposed.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Host, host:port, or base URL of the candidate Jupyter service, e.g.
+        '192.168.1.50', '192.168.1.50:8888', or
+        'https://notebook.example.com/jupyter'. Defaults to port 8888 and
+        http when no scheme is given.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

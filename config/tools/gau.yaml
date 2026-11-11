@@ -1,0 +1,23 @@
+tool_id: gau
+required_binary: gau
+scope_param: target
+
+description: >
+  Fetch historical URLs from passive web archives (Wayback Machine, AlienVault OTX, Common Crawl) for endpoint, subdomain, and parameter discovery without sending active traffic to the target.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target domain or URL to look up in passive archives (e.g. 'example.com' or 'https://example.com').
+    include_subs:
+      type: boolean
+      description: >
+        Include subdomains of target domain in the passive archive query (default true).
+    providers:
+      type: string
+      description: >
+        Comma-separated list of passive archive providers to query (e.g. 'wayback,otx' or 'wayback,otx,commoncrawl'). Defaults to 'wayback,otx'.
+  required: ["target"]

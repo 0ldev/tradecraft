@@ -1,0 +1,19 @@
+tool_id: gowitness
+required_binary: gowitness
+scope_param: target
+
+description: >
+  Save a screenshot of a URL to evidence storage and return its file
+  path and content hash. This does NOT return the image to you and you
+  cannot view its pixels or analyze its visual content -- use it to
+  produce evidence for a human reviewer or the generated report, never
+  to answer a question about what a page looks like.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL to screenshot, e.g. 'https://examplepaint.com.br/admin'.
+  required: ["target"]

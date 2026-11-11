@@ -1,0 +1,28 @@
+tool_id: ntlm_info_disclosure_probe
+scope_param: target
+destructive: false
+
+description: >
+  Sends one unauthenticated GET carrying a bare NTLM Type-1 message and
+  decodes the NTLM Type-2 challenge returned in WWW-Authenticate. The
+  Type-2 target-name and AV_PAIR fields commonly disclose the internal
+  Active Directory NetBIOS/DNS domain, computer name, and DNS tree even on
+  an internet-facing Exchange/OWA/RDWeb/VPN portal. Also accepts a
+  Negotiate-wrapped NTLM challenge when the decoded token carries the
+  NTLMSSP signature. Read-only: sends no credentials and never attempts an
+  authenticated session. Reports the disclosed names and the server
+  challenge; makes no claim that NTLM authentication itself succeeds.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Full URL of the candidate endpoint, e.g.
+        'https://owa.example.com/owa/' or 'https://vpn.example.com/'.
+        A scheme-less value is treated as https.
+    timeout:
+      type: integer
+      description: Per-request timeout in seconds. Defaults to 10.
+  required: ["target"]

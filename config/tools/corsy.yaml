@@ -1,0 +1,24 @@
+tool_id: corsy
+required_binary: corsy
+scope_param: url
+
+description: >
+  Test a single URL for CORS misconfiguration: reflected
+  Access-Control-Allow-Origin, Access-Control-Allow-Credentials:true
+  combined with an attacker-controlled origin, null-origin acceptance,
+  and related bypass patterns. Takes one URL per call -- it does not
+  crawl or discover endpoints itself.
+
+parameters:
+  type: object
+  properties:
+    url:
+      type: string
+      description: >
+        Full URL to test, e.g. 'https://examplepaint.com.br/api/user'.
+    headers:
+      type: string
+      description: >
+        Optional extra request headers to send, newline-separated (e.g.
+        a session cookie needed to reach an authenticated endpoint).
+  required: ["url"]

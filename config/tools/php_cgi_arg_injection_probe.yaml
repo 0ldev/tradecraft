@@ -1,0 +1,33 @@
+tool_id: php_cgi_arg_injection_probe
+scope_param: target
+destructive: false
+
+description: >
+  Probes Windows PHP-CGI installations (Apache, XAMPP, and standalone CGI
+  configurations) for critical argument injection Remote Code Execution
+  (CVE-2024-4577). Exploit tests the Best-Fit encoding soft-hyphen (%ad)
+  bypass that allows injecting command-line parameters into the PHP binary.
+  Uses a safe, non-destructive probe: submits a benign PHP evaluation payload
+  via php://input that calculates and prints an isolated MD5 verification token
+  before terminating (die). If the token is reflected, unauthenticated RCE is
+  confirmed without modifying server state.
+
+parameters:
+  type: object
+  properties:
+    target:
+      type: string
+      description: >
+        Target hostname, IP, or full URL to probe (e.g., '192.168.1.50',
+        'app.example.com', or 'https://example.com/site').
+    path:
+      type: string
+      description: >
+        Optional specific PHP script path to test (e.g., '/index.php' or
+        '/php-cgi/php-cgi.exe'). If omitted, standard candidate paths are tested.
+    timeout:
+      type: integer
+      description: >
+        Per-request HTTP timeout in seconds (default: 8).
+  required:
+    - target
