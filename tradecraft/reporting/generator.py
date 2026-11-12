@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import litellm
 
+from tradecraft.coverage.matrix import CoverageMatrix
 from tradecraft.execution.loop import (
     DEFAULT_API_KEY,
     DEFAULT_BASE_URL,
@@ -21,6 +22,7 @@ from tradecraft.execution.loop import (
 )
 from tradecraft.memory.evidence import EvidenceStore
 from tradecraft.memory.facts import FactStore
+from tradecraft.reporting.attack_map import render_attack_appendix
 from tradecraft.reporting.exporters import (
     render_html_bundle,
     render_json_bundle,
@@ -241,6 +243,11 @@ def generate_report(
     findings_text = render_findings(result.findings)
     closing_notes_text = render_closing_notes(result.report)
     evidence_text = render_evidence_index(result.evidence)
+    # v2 (Phase 5): deterministic triage appendix -- coverage matrix and
+    # ATT&CK/CVSS mapping rendered from facts/findings, no LLM involved.
+    coverage_matrix = CoverageMatrix.from_records(result.facts.sorted_records())
+    coverage_text = "```\n" + coverage_matrix.render_compact() + "\n```\n"
+    attack_text = render_attack_appendix(result.findings)
 
     exec_summary = generate_executive_summary(
         facts_text=inventory_text,
@@ -269,6 +276,11 @@ def generate_report(
 ## Model's Closing Notes
 
 {closing_notes_text}
+
+## Coverage & ATT&CK Mapping
+
+{coverage_text}
+{attack_text}
 
 ## Evidence Index
 

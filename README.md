@@ -28,6 +28,18 @@ chat`), or exported as SFT/DPO fine-tuning data (`tradecraft dataset`).
 See [`docs/report.md`](docs/report.md), [`docs/post-engagement.md`](docs/post-engagement.md),
 and [`docs/finetune.md`](docs/finetune.md).
 
+## v2 platform additions
+
+Beyond the core loop, v2 adds: a deterministic **coverage matrix**
+(which target was checked for which vulnerability class), **dynamic
+tool schemas** (one-line tool menu + `load_tool` activation instead of
+shipping every schema every turn), **finding verification**
+(`verify_finding` + per-finding evidence status), a live **web
+dashboard** (`tradecraft studio`), a **target knowledge graph**
+persisted per run, per-host engagement **fan-out**, a **plugin
+scaffolder** (`tradecraft new-tool`), and a scored **bench harness**
+(`bench/`). See [`docs/v2-platform.md`](docs/v2-platform.md).
+
 ## Layout
 
 ```

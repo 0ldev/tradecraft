@@ -1,0 +1,17 @@
+tool_id: load_tool
+description: >-
+  Activates another tool's full parameter schema for the rest of the
+  engagement. The Tool Menu lists every available tool one line each;
+  call load_tool with a tool's name to load its schema, then call that
+  tool on your next turn.
+required_binary: null
+scope_param: null
+destructive: false
+parameters:
+  type: object
+  properties:
+    tool_name:
+      type: string
+      description: The name of the tool to activate, exactly as listed in the Tool Menu.
+  required:
+    - tool_name

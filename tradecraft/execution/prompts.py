@@ -59,10 +59,52 @@ def build_state_message(
     memory_render: str,
     facts_render: str = "(no facts recorded yet)",
     engagement_budget: str = "(not yet computed)",
+    coverage_render: str = "",
+    suggestions_render: str = "",
+    tool_menu_render: str = "",
+    verification_render: str = "",
 ) -> str:
     """The per-turn engagement state, sent as the last message of each API
     call. Not part of the system prompt, and never stored in the
-    conversation."""
+    conversation.
+
+    Optional v2 sections (coverage matrix, deterministic suggestions,
+    dynamic tool menu, verification summary) render only when non-empty,
+    so callers that haven't adopted them produce byte-identical output
+    to the pre-2.0 state message."""
+    v2_sections = ""
+    if coverage_render:
+        v2_sections += (
+            "\n\n## Coverage Matrix\n\n"
+            "Deterministic tool-reported test coverage per target and class "
+            "(VULN=vulnerable, clean=tested-clean, part!=params discovered but "
+            "this class untested, -=untested). Gaps here are where the next "
+            "tool call usually goes.\n\n"
+            f"{coverage_render}"
+        )
+    if suggestions_render:
+        v2_sections += (
+            "\n\n## Suggested Next Actions\n\n"
+            "Deterministic harness analysis, advisory -- each has a reason; "
+            "act on it or dismiss it with your own.\n\n"
+            f"{suggestions_render}"
+        )
+    if verification_render:
+        v2_sections += (
+            "\n\n## Finding Verification\n\n"
+            "Whether each logged finding stands on resolvable evidence. "
+            "Use verify_finding to pull the underlying evidence; fix or "
+            "retract findings that can't be backed.\n\n"
+            f"{verification_render}"
+        )
+    if tool_menu_render:
+        v2_sections += (
+            "\n\n## Tool Menu\n\n"
+            "Every available tool, one line each. Only tools with LOADED "
+            "schemas can be called directly -- activate more with "
+            "`load_tool` when you need them.\n\n"
+            f"{tool_menu_render}"
+        )
     return (
         "[Engagement state, refreshed every turn. This is context from the "
         "harness, not a message from the operator.]\n\n"
@@ -75,4 +117,5 @@ def build_state_message(
         f"{facts_render}\n\n"
         "## Engagement Budget\n\n"
         f"{engagement_budget}"
+        f"{v2_sections}"
     )

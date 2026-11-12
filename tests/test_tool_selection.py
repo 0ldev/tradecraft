@@ -53,9 +53,11 @@ def test_tool_ids_none_includes_every_registered_tool_plus_memory_tools():
 def test_tool_ids_restricts_to_chosen_subset():
     memory = EngagementMemory()
     tools = _build_tool_map(memory, tool_ids=["nmap_scan", "subfinder"])
+    # v2: verify_finding is always included alongside the memory/evidence
+    # tools -- it reads the same stores, it's not an attack capability.
     assert set(tools) == {
         "nmap_scan", "subfinder", "log_note", "log_finding", "retract_finding",
-        "recall_memory", "read_evidence", "search_evidence",
+        "recall_memory", "read_evidence", "search_evidence", "verify_finding",
     }
 
 

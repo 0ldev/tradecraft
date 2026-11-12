@@ -47,6 +47,42 @@ _BANNER_SUBTITLE = "blackbox pentesting"
 _BANNER_SEP = " │ "
 
 
+def _studio_main(argv: list[str]) -> None:
+    """`tradecraft studio [--run-dir PATH] [--host H] [--port N]` --
+    read-only live dashboard over persisted runs (Craft Studio, v2)."""
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="tradecraft studio", description="Craft Studio: live engagement dashboard")
+    parser.add_argument("--run-dir", default=None, help="Serve a specific run directory tree (default: scan the whole TRADECRAFT_HOME).")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8480)
+    args = parser.parse_args(argv)
+
+    from tradecraft.studio.app import serve
+    print(f"Craft Studio -> http://{args.host}:{args.port}")
+    serve(runs_dir=args.run_dir, host=args.host, port=args.port)
+
+
+def _new_tool_main(argv: list[str]) -> None:
+    """`tradecraft new-tool <tool_id>` -- scaffold a new tool plugin."""
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="tradecraft new-tool", description="Scaffold a new tool (YAML contract + adapter + glue + test)")
+    parser.add_argument("tool_id", help="lowercase snake_case tool id, e.g. tls_expiry_probe")
+    parser.add_argument("--root", default=".", help="Repo root to scaffold into (default: cwd).")
+    args = parser.parse_args(argv)
+
+    from tradecraft.newtool import registration_snippet, scaffold
+    try:
+        created = scaffold(args.tool_id, root=args.root)
+    except (ValueError, FileExistsError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        sys.exit(1)
+    for path in created:
+        print(f"  created {path}")
+    print(registration_snippet(args.tool_id))
+
+
 def _print_banner() -> None:
     prefix_width = len(_BANNER_CHEVRON[0]) + len(_BANNER_SEP)
     # Colors only when attached to a real terminal -- raw escape codes would
@@ -93,6 +129,12 @@ def main(argv: list[str] | None = None) -> None:
         return
     if argv and argv[0] == "memory":
         memory_main(argv[1:])
+        return
+    if argv and argv[0] == "studio":
+        _studio_main(argv[1:])
+        return
+    if argv and argv[0] == "new-tool":
+        _new_tool_main(argv[1:])
         return
 
     parser = argparse.ArgumentParser(prog="tradecraft", description="LLM-driven security-testing agent (v0).")

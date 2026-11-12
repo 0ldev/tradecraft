@@ -20,6 +20,10 @@ dependencies = [
 test = [
     "pytest>=8.0.0",
 ]
+studio = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+]
 
 [project.scripts]
 tradecraft = "tradecraft.cli:main"

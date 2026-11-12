@@ -1,0 +1,16 @@
+tool_id: verify_finding
+description: >-
+  Loads the stored evidence a logged finding cites and returns a compact
+  digest of it. Use this to confirm a finding still stands on real
+  evidence before the final report, or to decide whether to retract it.
+required_binary: null
+scope_param: null
+destructive: false
+parameters:
+  type: object
+  properties:
+    finding_id:
+      type: integer
+      description: The id of the finding to verify (from the engagement log).
+  required:
+    - finding_id

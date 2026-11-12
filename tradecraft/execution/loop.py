@@ -25,6 +25,7 @@ from litellm.exceptions import (
     Timeout as LiteLLMTimeout,
 )
 
+from tradecraft.coverage.matrix import CoverageMatrix
 from tradecraft.execution.budget import (
     DEFAULT_CONVERSATION_TOKEN_BUDGET,
     default_token_counter,
@@ -40,11 +41,21 @@ from tradecraft.execution.run_dir import (
     save_facts_json,
     update_latest_symlink,
 )
+from tradecraft.execution.suggestions import render_suggestions, suggest_next_actions
+from tradecraft.execution.tool_menu import (
+    ALWAYS_ON_TOOLS,
+    LoadTool,
+    build_tool_menu,
+    dynamic_menu_enabled,
+    schemas_for,
+)
 from tradecraft.execution.trace import EngagementTrace, redact_request
 from tradecraft.memory.cross_engagement import CrossEngagementMemory
 from tradecraft.memory.evidence import EvidenceStore
 from tradecraft.memory.facts import FactStore
+from tradecraft.memory.graph import TargetGraph
 from tradecraft.memory.log import EngagementMemory
+from tradecraft.policy.verify import VerifyFinding, classify_findings, render_verification_summary
 from tradecraft.tools.base import Tool
 from tradecraft.tools.evidence_tools import ReadEvidence, SearchEvidence
 from tradecraft.tools.memory_tools import LogFinding, LogNote, RecallMemory, RetractFinding
@@ -189,6 +200,10 @@ def _build_tool_map(
         tools[memory_tool.spec.name] = memory_tool
     for ev_tool in (ReadEvidence(store), SearchEvidence(store)):
         tools[ev_tool.spec.name] = ev_tool
+    # v2 (Phase 2): deterministic finding verification, available whenever
+    # there are findings to verify.
+    verify_tool = VerifyFinding(memory, store)
+    tools[verify_tool.spec.name] = verify_tool
     if "gowitness" in tools:
         from tradecraft.tools.gowitness import Gowitness
         tools["gowitness"] = Gowitness(store)
@@ -550,6 +565,17 @@ def run_engagement(
         cross_memory=cross_memory,
         current_run_id=run_id_val,
     )
+    # v2 (Phase 1): dynamic tool menu. Past the menu threshold, full
+    # schemas are sent only for always-on + activated tools; everything
+    # else is a one-line menu entry the model activates with load_tool.
+    # Small profiles keep the old send-everything behavior (cheaper in
+    # tokens AND turns).
+    use_menu = dynamic_menu_enabled(len(tool_map))
+    active_tools: set = set()
+    if use_menu:
+        load_tool = LoadTool(tool_map, active_tools)
+        tool_map[load_tool.spec.name] = load_tool
+
     tool_schemas = openai_tool_schemas(tool_map.values())
 
     conversation: List[Dict[str, Any]] = [
@@ -573,6 +599,15 @@ def run_engagement(
             if clean_completion and run_dir_path.parent.name == "runs":
                 update_latest_symlink(run_dir_path.parent.parent, run_id_val)
             try:
+                # v2 (Phase 4): persist the target knowledge graph next to
+                # the run so later runs (and the Studio) can consume it.
+                graph = TargetGraph.from_engagement(
+                    facts, memory, evidence=evidence, target=target
+                )
+                graph.save(run_dir_path / "graph.json")
+            except Exception:
+                pass
+            try:
                 cross_memory.index_live_run(
                     run_id=run_id_val,
                     target=target,
@@ -582,8 +617,19 @@ def run_engagement(
             except Exception:
                 pass
 
-    def build_prompt_and_messages() -> tuple[str, List[Dict[str, Any]], Dict[str, int]]:
-        tool_schemas_json = json.dumps(tool_schemas)
+    def build_prompt_and_messages() -> tuple[str, List[Dict[str, Any]], Dict[str, int], List[Dict[str, Any]]]:
+        # v2 per-turn harness renderings. All deterministic projections of
+        # facts/memory -- refreshed every turn, appended to the state
+        # message (never the system prompt, which stays byte-identical
+        # for prefix-cache friendliness).
+        records = facts.sorted_records()
+        coverage_render = CoverageMatrix.from_records(records).render_compact()
+        suggestions_render = render_suggestions(suggest_next_actions(records))
+        verification_render = render_verification_summary(classify_findings(memory, evidence))
+        menu_render = build_tool_menu(tool_map) if use_menu else ""
+
+        turn_schemas = schemas_for(tool_map, active_tools) if use_menu else tool_schemas
+        tool_schemas_json = json.dumps(turn_schemas)
         tool_schemas_tokens = default_token_counter(model, [{"role": "user", "content": tool_schemas_json}])
         # render_within_budget sizes HISTORY and FACTS against the whole
         # non-conversation prompt. The callback therefore returns the system
@@ -598,7 +644,13 @@ def run_engagement(
             lambda history_r, facts_r: (
                 build_system_prompt(target, allowed_tools=list(tool_map.keys()), seed_context=effective_seed_context, guidance=guidance)
                 + build_state_message(
-                    history_r, facts_r, _engagement_budget_text(turn, max_turns, 0),
+                    history_r,
+                    facts_r,
+                    _engagement_budget_text(turn, max_turns, 0),
+                    coverage_render=coverage_render,
+                    suggestions_render=suggestions_render,
+                    tool_menu_render=menu_render,
+                    verification_render=verification_render,
                 )
             ),
             tool_schemas_tokens,
@@ -614,6 +666,10 @@ def run_engagement(
             history_render,
             facts_render,
             _engagement_budget_text(turn, max_turns, conversation_turns_omitted),
+            coverage_render=coverage_render,
+            suggestions_render=suggestions_render,
+            tool_menu_render=menu_render,
+            verification_render=verification_render,
         )
         # Component counts for the trace. The additive total to sanity-check
         # against the API's own usage["prompt_tokens"] is
@@ -644,7 +700,7 @@ def run_engagement(
             *trimmed_conversation,
             {"role": "user", "content": state_message},
         ]
-        return system_prompt, messages, token_breakdown
+        return system_prompt, messages, token_breakdown, turn_schemas
 
     already_nudged_before_final_report = False
     already_nudged_interactsh = False
@@ -657,15 +713,15 @@ def run_engagement(
     while max_turns <= 0 or turn < max_turns:
         turn += 1
         turns_used = turn
-        system_prompt, messages, token_breakdown = build_prompt_and_messages()
-        # This call does pass tools=tool_schemas below -- unlike the
+        system_prompt, messages, token_breakdown, turn_schemas = build_prompt_and_messages()
+        # This call does pass tools=turn_schemas below -- unlike the
         # forced final-report call -- so its estimate must include them.
         token_breakdown["estimated_prompt_total"] += token_breakdown["tool_schemas"]
 
         try:
             response = _complete_with_retry(
                 model=model, base_url=base_url, api_key=api_key,
-                messages=messages, tools=tool_schemas,
+                messages=messages, tools=turn_schemas,
                 timeout=timeout, max_tokens=max_output_tokens,
                 trace=trace, turn=turn, call_kind="turn", token_breakdown=token_breakdown, emit=emit,
             )
@@ -810,7 +866,11 @@ def run_engagement(
             except json.JSONDecodeError as exc:
                 result = {"error": f"malformed tool arguments: {exc}"}
             else:
-                result = _dispatch_tool(tc.function.name, params, tool_map, facts, evidence=evidence)
+                result = _dispatch_tool(
+                    tc.function.name, params, tool_map, facts,
+                    evidence=evidence,
+                    menu_active=(active_tools if use_menu else None),
+                )
             emit("tool_result", {"name": tc.function.name, "input": params if isinstance(params, dict) else {}, "result": result})
             conversation.append(
                 {"role": "tool", "tool_call_id": tc.id, "content": json.dumps(result, default=str)}
@@ -831,7 +891,7 @@ def run_engagement(
             ),
         }
     )
-    _, final_messages, final_token_breakdown = build_prompt_and_messages()
+    _, final_messages, final_token_breakdown, _final_schemas = build_prompt_and_messages()
     try:
         final = _complete_with_retry(
             model=model, base_url=base_url, api_key=api_key,
@@ -866,6 +926,7 @@ def _dispatch_tool(
     tool_map: Dict[str, Tool],
     facts: FactStore,
     evidence: EvidenceStore | None = None,
+    menu_active: set | None = None,
 ) -> Dict[str, Any]:
     tool = tool_map.get(name)
     if tool is None:
@@ -888,6 +949,17 @@ def _dispatch_tool(
                 )
             }
         return {"error": f"unknown tool '{name}'"}
+
+    # v2 dynamic menu: a tool that exists but whose schema was never
+    # loaded isn't callable -- the model must activate it via load_tool.
+    # Always-on tools bypass this check (they're always schema-loaded).
+    if menu_active is not None and name not in menu_active and name not in ALWAYS_ON_TOOLS:
+        return {
+            "error": (
+                f"tool '{name}' exists but its schema is not loaded yet -- "
+                f"call load_tool(tool_name='{name}') first"
+            )
+        }
 
     # Each tool declares its own scope_param (from config/tools/<id>.yaml) --
     # the name of the parameter that carries its network target. There is

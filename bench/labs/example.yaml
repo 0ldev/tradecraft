@@ -1,0 +1,18 @@
+# Example bench config. Copy and point `target` at a lab instance you
+# control (Juice Shop: docker run -p 3000:3000 bkimminich/juice-shop).
+#
+#   python -m bench.run_bench bench/labs/example.yaml --model <model>
+#
+# expected_findings keyword groups: all keywords of a group must appear
+# in some logged finding for that group to count as covered.
+labs:
+  - name: juice-shop-basic
+    target: http://localhost:3000
+    profile: web
+    expected_findings:
+      - id: sql_injection_login
+        keywords: ["sql", "login"]
+      - id: xss_found
+        keywords: ["xss"]
+      - id: sensitive_endpoint
+        keywords: ["admin"]
