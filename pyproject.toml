@@ -2,6 +2,7 @@
 name = "tradecraft"
 version = "0.1.0"
 description = "LLM-driven security-testing agent: a single continuous reasoning loop over a small set of real tools, not a staged pipeline."
+license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
     "litellm>=1.0.0",

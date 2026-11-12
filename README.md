@@ -106,3 +106,7 @@ pytest
 - [`docs/post-engagement.md`](docs/post-engagement.md) — the post-run Q&A console.
 - [`docs/finetune.md`](docs/finetune.md) — turning engagement runs into SFT/DPO fine-tuning data.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add a new tool.
+
+## License
+
+[MIT](LICENSE)
