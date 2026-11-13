@@ -141,7 +141,8 @@ def test_server_tool_call_parse_error_triggers_truncation_retry_with_doubled_bud
 
     # Attempt 0 runs up to MAX_NETWORK_RETRIES+1 (3 calls), fails with parse_err,
     # then triggers truncation_retry with doubled tokens (200) on attempt 1.
-    with patch("tradecraft.execution.loop.litellm.completion", side_effect=[parse_err, parse_err, parse_err, success]) as mock_completion:
+    with patch("tradecraft.execution.loop.MAX_NETWORK_RETRIES", 2), \
+         patch("tradecraft.execution.loop.litellm.completion", side_effect=[parse_err, parse_err, parse_err, success]) as mock_completion:
         result = _call_with_retry(emit=lambda k, p: events.append((k, p)))
 
     assert result is success

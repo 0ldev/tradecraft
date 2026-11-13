@@ -44,7 +44,8 @@ def _call(**overrides):
 
 def test_retries_on_timeout_until_success():
     success = _success_response()
-    with patch("tradecraft.execution.loop.litellm.completion", side_effect=[_timeout_exc(), _timeout_exc(), success]) as mock_completion:
+    with patch("tradecraft.execution.loop.MAX_NETWORK_RETRIES", 2), \
+         patch("tradecraft.execution.loop.litellm.completion", side_effect=[_timeout_exc(), _timeout_exc(), success]) as mock_completion:
         result = _call()
 
     assert result is success
@@ -65,7 +66,8 @@ def test_raises_after_exhausting_network_retries():
 def test_emits_an_event_per_network_retry():
     success = _success_response()
     events = []
-    with patch("tradecraft.execution.loop.litellm.completion", side_effect=[_timeout_exc(), success]):
+    with patch("tradecraft.execution.loop.MAX_NETWORK_RETRIES", 2), \
+         patch("tradecraft.execution.loop.litellm.completion", side_effect=[_timeout_exc(), success]):
         _call(emit=lambda kind, payload: events.append((kind, payload)))
 
     assert len(events) == 1
@@ -74,7 +76,8 @@ def test_emits_an_event_per_network_retry():
 
 def test_retries_on_server_side_malformed_tool_call_json():
     success = _success_response()
-    with patch("tradecraft.execution.loop.litellm.completion", side_effect=[_server_error_exc(), success]) as mock_completion:
+    with patch("tradecraft.execution.loop.MAX_NETWORK_RETRIES", 2), \
+         patch("tradecraft.execution.loop.litellm.completion", side_effect=[_server_error_exc(), success]) as mock_completion:
         result = _call()
     assert result is success
     assert mock_completion.call_count == 2
@@ -90,7 +93,8 @@ def test_does_not_retry_on_non_network_errors():
 def test_trace_records_failed_attempts_and_the_success():
     success = _success_response()
     trace = EngagementTrace()
-    with patch("tradecraft.execution.loop.litellm.completion", side_effect=[_timeout_exc(), success]):
+    with patch("tradecraft.execution.loop.MAX_NETWORK_RETRIES", 2), \
+         patch("tradecraft.execution.loop.litellm.completion", side_effect=[_timeout_exc(), success]):
         _call(trace=trace)
 
     assert len(trace.calls) == 2

@@ -87,7 +87,7 @@ TRUNCATION_RETRY_SYSTEM_NUDGE = (
 # permanent/non-transient errors (AuthenticationError, BadRequestError,
 # ContentPolicyViolationError, ContextWindowExceededError, ...) where
 # retrying identically can't help.
-MAX_NETWORK_RETRIES = 2
+MAX_NETWORK_RETRIES = int(os.environ.get("DEFAULT_MAX_RETRIES", "2"))
 _RETRYABLE_NETWORK_ERRORS = (
     LiteLLMTimeout,
     APIConnectionError,
